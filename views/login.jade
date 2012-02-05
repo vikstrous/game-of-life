@@ -1,0 +1,15 @@
+h1 Login, good sir.
+- if ('undefined' !== typeof errors && errors.length)
+  ul#errors
+    - each error in errors
+      li.error= error
+form(action="/login", method="POST")
+  label email:
+    br
+    input(name="email")
+  br
+  label password:
+    br
+    input(type="password", name="password")
+  br
+  input(type="submit")

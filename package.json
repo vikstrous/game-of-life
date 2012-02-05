@@ -6,6 +6,7 @@
     "stylus": "*",
     "jade": "*",
     "socket.io": "*",
-    "connect": "*"
+    "connect": "*",
+    "everyauth": "*"
   }
 }

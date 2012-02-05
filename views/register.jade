@@ -1,0 +1,20 @@
+h1 Come one, come all! Register here!
+- if ('undefined' !== typeof errors && errors.length)
+  ul#errors
+    - each error in errors
+      li.error= error
+form(action="/register", method="POST")
+  label email:
+    br
+    input(name="email")
+  br
+  label password:
+    br
+    input(type="password", name="password")
+  br
+  label password again:
+    br
+    input(type="password", name="password_again")
+  br
+  input(type="submit")
+script(src="/js/register.js")
