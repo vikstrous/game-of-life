@@ -1,33 +1,22 @@
+var redis = require("redis"),
+    client = redis.createClient(2772, "50.30.35.9");
+
+client.on("error", function (err) {
+    console.log("Redis error " + err);
+});
+
+client.auth("e8d00846616c5645c7b093c584b4b34b");
+
 var grid_size;
 var grid;
 var grid_colors = ["222222"];
 var moore = [[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]];
 var animation_id;
 
-module.exports = function (socket) {
-
-	for(var i = 0; i < grid_size; i++) {
-		grid[i] = new Array();
-		for(var j = 0; j < grid_size; j++) {
-			grid[i][j] = 0;
-		}
-	}
+module.exports = {
+onconnect : function (socket) {
+	
 	socket.on('page_ready', function(data) {
-		grid_size = {
-			x : 25,
-			y : 30
-		};
-		grid = new Array();
-		for(var i = 0; i < grid_size.x; i++) {
-			grid[i] = new Array();
-			for(var j = 0; j < grid_size.y; j++) {
-				grid[i][j] = 0;
-			}
-		}
-
-		grid[2][2] = 1;
-		grid[2][3] = 1;
-
 		var data = {
 			grid_size : grid_size,
 			grid : grid
@@ -40,17 +29,21 @@ module.exports = function (socket) {
 		var response_data = {
 			x : data.p_x, y : data.p_y, new_value : grid[data.p_x][data.p_y]
 		};
+		socket.broadcast.emit('grid_click_response', response_data);
 		socket.emit('grid_click_response', response_data);
 	});
 
 	socket.on('grid_play', function(data) {
+		socket.broadcast.emit('grid_played', null);
 		animation_id = setInterval(function() {
 			updateGrid();
+			socket.broadcast.emit('grid_update', grid);
 			socket.emit('grid_update', grid);
-		}, 1000 / 60);
+		}, 1000 / 30);
 	});
 
 	socket.on('grid_pause', function(data) {
+		socket.broadcast.emit('grid_paused', null);
 		clearInterval(animation_id);
 	});
 	var hs = socket.handshake;
@@ -74,7 +67,20 @@ module.exports = function (socket) {
 		clearInterval(intervalID);
 		clearInterval(animation_id);
 	});
-};
+} ,
+init : function() {
+	grid_size = {
+		x : 50, y : 50
+	};
+	grid = new Array();
+	for(var i = 0; i < grid_size.x; i++) {
+		grid[i] = new Array();
+		for(var j = 0; j < grid_size.y; j++) {
+			grid[i][j] = 0;
+		}
+	}
+}
+}
 
 function modToRange(val, lower, upper) {
 	while(val < lower) { val += (upper - lower); }

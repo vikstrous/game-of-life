@@ -221,4 +221,5 @@ sio.set('authorization', function (data, accept) {
 
 
 var game_server = require(__dirname + '/game_server/main.js')
-sio.sockets.on('connection', game_server);
+sio.sockets.on('connection', game_server.onconnect);
+game_server.init();

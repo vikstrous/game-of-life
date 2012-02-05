@@ -3,7 +3,7 @@ var grid_colors = ["222222"];
 var moore = [[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]];
 var animation_id;
 
-var socket = io.connect('http://localhost');
+var socket = io.connect();
 
 $(document).ready(function(){	
 	document.getElementById("game_of_life").addEventListener('click', clicked, false);
@@ -35,6 +35,14 @@ socket.on('page_ready_response', function(data) {
 socket.on('grid_click_response', function(data) {
 	grid[data.x][data.y] = data.new_value;
 	repaint();
+});
+socket.on('grid_played', function(data) {
+	$("#play_pause").data("value", "pause");
+	$("#play_pause").html("Pause");
+});
+socket.on('grid_paused', function(data) {
+	$("#play_pause").data("value", "play");
+	$("#play_pause").html("Play");
 });
 socket.on('grid_update', function(newGrid) {
 	for(var i = 0; i < grid_size.x; i++) {
