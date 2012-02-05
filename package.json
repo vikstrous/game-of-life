@@ -7,6 +7,8 @@
     "jade": "*",
     "socket.io": "*",
     "connect": "*",
-    "everyauth": "*"
+    "everyauth": "*",
+    "redis": "*",
+    "connect-redis": "*"
   }
 }

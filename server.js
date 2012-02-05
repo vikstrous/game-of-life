@@ -2,24 +2,35 @@ var express = require('express')
   , stylus = require('stylus')
   , MemoryStore = express.session.MemoryStore
   , io = require('socket.io')
-  , everyauth = require('everyauth');
+  , everyauth = require('everyauth')
+  , RedisStore = require('connect-redis')(express);
+
+var redis = require("redis"),
+    client = redis.createClient(2772, "50.30.35.9");
+
+client.on("error", function (err) {
+    console.log("Redis error " + err);
+});
+
+client.auth("e8d00846616c5645c7b093c584b4b34b");
+/*
+client.set("string key", "string val", redis.print);
+client.hset("hash key", "hashtest 1", "some value", redis.print);
+client.hset(["hash key", "hashtest 2", "some other value"], redis.print);
+client.hkeys("hash key", function (err, replies) {
+    console.log(replies.length + " replies:");
+    replies.forEach(function (reply, i) {
+        console.log("    " + i + ": " + reply);
+    });
+    client.quit();
+});
+*/
 
 var app = express.createServer();
-var sessionStore = new MemoryStore();
+var sessionStore = new RedisStore({client:client});
 var Session = require('connect').middleware.session.Session;
 
-var users = [];
 
-function validateUser(attributes){
-  var err = [];
-  if(attributes.password.length < 5){
-    err.push("Password too short.");
-  }
-  if(attributes.email.length == 0){
-    err.push("Enter an email.");
-  }
-  return err;
-}
 
 everyauth.password
   .loginWith('email')
@@ -46,12 +57,21 @@ everyauth.password
     //   promise.fulfill(user);
     // }
     // return promise;
-    for (u in users) {
-      if(users[u].email == email && users[u].password == password){
-        return u;
+    var promise = this.Promise();
+    var users = client.lrange("users", 0, -1, function(err, users){
+      if (err) return promise.fulfill([err]);
+      if(users){
+        for (u in users) {
+          var user = JSON.parse(users[u]);
+          if(user.email == email && user.password == password){
+            promise.fulfill(user);
+          }
+        }
       }
-    }
-    return ['Wrong username or password.'];
+      console.log(users);
+      promise.fulfill(['Wrong username or password.']);
+    });
+    return promise;
   })
   .loginSuccessRedirect('/') // Where to redirect to after a login
 
@@ -75,8 +95,28 @@ everyauth.password
     // The `errors` you return show up as an `errors` local in your jade template
     
     // First, validate your errors. Here, validateUser is a made up function
-    var moreErrors = validateUser( newUserAttributes );
-    if (moreErrors.length) baseErrors.push.apply(baseErrors, moreErrors);
+    var promise = this.Promise();
+    var err = [];
+    client.lrange("users", 0, -1, function(err, users){
+      if (err) return promise.fulfill([err]);
+      var e = baseErrors;
+      if(users){
+        for (u in users){
+          var user = JSON.parse(users[u]);
+          if (user.email == newUserAttributes.email){
+            e.push("An account with this email already exists.");
+          }
+        }
+      }
+      if(newUserAttributes.password.length < 5){
+        e.push("Password too short.");
+      }
+      if(newUserAttributes.email.length == 0){
+        e.push("Enter an email.");
+      }
+      promise.fulfill(e);
+    });
+    return promise;
 
     // Return the array of errors, so your view has access to them.
     return baseErrors;
@@ -104,7 +144,7 @@ everyauth.password
     //
     // Note: Index and db-driven validations are the only validations that occur 
     // here; all other validations occur in the `validateRegistration` step documented above.
-    users.push(newUserAttributes);
+    client.rpush("users", JSON.stringify(newUserAttributes));
     return newUserAttributes;
   })
   .registerSuccessRedirect('/'); // Where to redirect to after a successful registration
