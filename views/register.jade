@@ -3,6 +3,9 @@ h1 Come one, come all! Register here!
   ul#errors
     - each error in errors
       li.error= error
+p Or 
+  a(href="/login") login
+  | ?
 form(action="/register", method="POST")
   label email:
     br

@@ -111,9 +111,16 @@ everyauth.password
 
 
 
-var routes = function(app){  
+var routes = function(app){
   app.get('/', function(req, res) {
     res.render('index');
+  });
+  app.get('/game', function(req, res) {
+    if(req.loggedIn){
+      res.render('game');
+    } else {
+      res.redirect('/login');
+    }
   });
 }
 
