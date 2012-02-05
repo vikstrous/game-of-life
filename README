@@ -1,0 +1,4 @@
+Notes:
+- ./setup.sh must be run to set up the dependencies
+- ./run.sh must be run to turn on the server
+- the server will now autorestart on changes
