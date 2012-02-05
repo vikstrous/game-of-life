@@ -73,7 +73,7 @@ everyauth.password
     });
     return promise;
   })
-  .loginSuccessRedirect('/') // Where to redirect to after a login
+  .loginSuccessRedirect('/game') // Where to redirect to after a login
 
     // If login fails, we render the errors via the login view template,
     // so just make sure your loginView() template incorporates an `errors` local.
