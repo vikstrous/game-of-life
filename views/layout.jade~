@@ -1,0 +1,21 @@
+!!! 5
+html
+  head
+    title RPG Node
+    link(rel="stylesheet", type="text/css", href="/css/reset.css")
+    link(rel="stylesheet", type="text/css", href="/css/ui-darkness/jquery-ui-1.8.16.custom.css")
+    link(rel="stylesheet", type="text/css", href="/css/style.css")
+  body
+    != body
+    script(src="/nowjs/now.js")
+    script(src="/js/lib/jquery.min.js")
+    script(src="/js/collisionrect.js")
+    script(src="/js/teleporter.js")
+    script(src="/js/character.js")
+    script(src="/js/lib/jquery-ui-1.8.16.custom.min.js")
+    script(src="/js/lib/jquery.hotkeys.js")
+    script(src="/js/init.js")
+    script(src="/js/hotkeys.js")
+    script(src="/js/room.js")
+    script(src="/js/main.js")
+
