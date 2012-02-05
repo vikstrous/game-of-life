@@ -11,8 +11,8 @@ app.configure(function(){
   app.set('view engine', 'jade');
   app.use(express.cookieParser());
   app.use(express.session({store: sessionStore
-      , secret: 'secret'
-      , key: 'tj54u49tpowe548tuwp94t58u3w094ity897y8y'}));
+      , secret: 'tj54u49tpowe548tuwp94t58u3w094ity897y8y'
+      , key: 'express.sid'}));
   app.use(stylus.middleware(
     { src: __dirname + '/stylus',
       dest: __dirname + '/public'}
@@ -41,7 +41,7 @@ var parseCookie = require('connect').utils.parseCookie;
 sio.set('authorization', function (data, accept) {
     if (data.headers.cookie) {
         data.cookie = parseCookie(data.headers.cookie);
-        data.sessionID = data.cookie['tj54u49tpowe548tuwp94t58u3w094ity897y8y'];
+        data.sessionID = data.cookie['express.sid'];
         // save the session store to the data object 
         // (as required by the Session constructor)
         data.sessionStore = sessionStore;
