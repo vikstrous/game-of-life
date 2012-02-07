@@ -23,6 +23,12 @@ module.exports = function(app){
     res.redirect('/game/'+req.body.name);
   });
   app.get('/game/:name', login_check, function(req, res) {
-    res.render('game', {game_name: req.params.name});
+    db.game_by_name(req.params.name, function(err, game){
+      if(game){
+        res.render('game', {game:game});
+      } else {
+        res.redirect('/create');
+      }
+    });
   });
 };
