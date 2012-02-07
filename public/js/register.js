@@ -1,6 +1,6 @@
 $(function(){
-  $("form").submit(function(){
-    if ($('input[name="password"]').val() == $('input[name="password_again"]').val()){
+  $("#register").submit(function(){
+    if ($('#register input[name="password"]').val() == $('#register input[name="password_again"]').val()){
       return true;
     } else {
       alert("Passwords don't match!");
