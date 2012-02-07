@@ -44,12 +44,16 @@ module.exports = {
         });
         return promise;
       })
-      .loginSuccessRedirect('/game') // Where to redirect to after a login
-
-        // If login fails, we render the errors via the login view template,
-        // so just make sure your loginView() template incorporates an `errors` local.
-        // See './example/views/login.jade'
-
+      .respondToLoginSucceed(function(res, user, data){
+        var r = data.session.redirectTo;
+        delete data.session.redirectTo;
+        res.redirect(r || '/');
+      })
+      .respondToRegistrationSucceed(function(res, user, data){
+        var r = data.session.redirectTo;
+        delete data.session.redirectTo;
+        res.redirect(r || '/');
+      })
       .getRegisterPath('/register') // Uri path to the registration page
       .postRegisterPath('/register') // The Uri path that your registration form POSTs to
       .registerView('register')
@@ -125,7 +129,7 @@ module.exports = {
     if(req.loggedIn){
       next();
     } else {
-      console.log(req);
+      req.session.redirectTo = req.url
       res.redirect('/login');
     }
   }
