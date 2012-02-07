@@ -8,6 +8,9 @@ client.on("error", function (err) {
 client.auth("e8d00846616c5645c7b093c584b4b34b");
 
 var user_counter = 'global:nextUserId';
+var memstore = {};
+memstore.games = [];
+memstore.gid_by_name = {};
 
 db = {
   client: client,
@@ -44,6 +47,17 @@ db = {
     client.get('user_by_uid:' + uid, function(err, data){
       cb(err, JSON.parse(data));
     });
+  },
+  new_game: function(data, cb){
+    memstore.games.push(data);
+    memstore.gid_by_name[data.name] = memstore.games.length - 1;
+    if(typeof(cb) == "function") cb(null);
+  },
+  game_by_name: function(name, cb){
+    cb(null, memstore.games[memstore.gid_by_name[name]]);
+  },
+  all_games: function(cb){
+    cb(null, memstore.games);
   }
 };
 
