@@ -1,1 +1,14 @@
-p form for creating games goes here
+h1 I can haz gaem?
+- if ('undefined' !== typeof errors && errors.length)
+  ul#errors
+    - each error in errors
+      li.error= error
+p Or 
+  a(href="/join") join a game
+  | ?
+form(action="/create", method="POST")
+  label Game name:
+    br
+    input(name="name")
+  br
+  input(type="submit", value="Create")

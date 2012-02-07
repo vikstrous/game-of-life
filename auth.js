@@ -1,9 +1,8 @@
-
 var everyauth = require('everyauth')
   
 module.exports = {
   middleware: function() { return everyauth.middleware() },
-  init: function(app, redis){
+  init: function(app, db){
     everyauth.password
       .loginWith('email')
       .getLoginPath('/login') // Uri path to the login page
@@ -30,29 +29,28 @@ module.exports = {
         // }
         // return promise;
         var promise = this.Promise();
-        var users = redis.lrange("users", 0, -1, function(err, users){
+        db.user_by_email(email, function(err, user){
           if (err) return promise.fulfill([err]);
-          if(users){
-            for (u in users) {
-              var user = JSON.parse(users[u]);
-              if(user.email == email && user.password == password){
-                promise.fulfill(user);
-              }
-            }
+          if (user && user.password == password){
+              promise.fulfill(user);
           }
           promise.fulfill(['Wrong username or password.']);
         });
         return promise;
       })
       .respondToLoginSucceed(function(res, user, data){
-        var r = data.session.redirectTo;
-        delete data.session.redirectTo;
-        res.redirect(r || '/');
+        if(user){//check for success
+          var r = data.session.redirectTo;
+          delete data.session.redirectTo;
+          res.redirect(r || '/');
+        }
       })
       .respondToRegistrationSucceed(function(res, user, data){
-        var r = data.session.redirectTo;
-        delete data.session.redirectTo;
-        res.redirect(r || '/');
+        if(user){ //check for success
+          var r = data.session.redirectTo;
+          delete data.session.redirectTo;
+          res.redirect(r || '/');
+        }
       })
       .getRegisterPath('/register') // Uri path to the registration page
       .postRegisterPath('/register') // The Uri path that your registration form POSTs to
@@ -71,30 +69,25 @@ module.exports = {
         
         // First, validate your errors. Here, validateUser is a made up function
         var promise = this.Promise();
-        var err = [];
-        redis.lrange("users", 0, -1, function(err, users){
-          if (err) return promise.fulfill([err]);
-          var e = baseErrors;
-          if(users){
-            for (u in users){
-              var user = JSON.parse(users[u]);
-              if (user.email == newUserAttributes.email){
-                e.push("An account with this email already exists.");
-              }
-            }
-          }
-          if(newUserAttributes.password.length < 5){
-            e.push("Password too short.");
-          }
-          if(newUserAttributes.email.length == 0){
-            e.push("Enter an email.");
-          }
+        var e = [];
+        if(newUserAttributes.password.length < 5){
+          e.push("Password too short.");
+        }
+        if(newUserAttributes.email.length == 0){
+          e.push("Enter an email.");
+        }
+        if (e.length > 0){
           promise.fulfill(e);
-        });
+        } else {
+          db.user_by_email_exists(newUserAttributes.email, function(err, exists){
+            if (err) return promise.fulfill([err]);
+            if (exists) {
+              e.push("An account with this email already exists.");
+            }
+            promise.fulfill(e);
+          });
+        }
         return promise;
-
-        // Return the array of errors, so your view has access to them.
-        return baseErrors;
       })
       .registerUser( function (newUserAttributes) {
         // This step is only executed if we pass the validateRegistration step without
@@ -119,10 +112,13 @@ module.exports = {
         //
         // Note: Index and db-driven validations are the only validations that occur 
         // here; all other validations occur in the `validateRegistration` step documented above.
-        redis.rpush("users", JSON.stringify(newUserAttributes));
-        return newUserAttributes;
-      })
-      .registerSuccessRedirect('/'); // Where to redirect to after a successful registration
+        var promise = this.Promise();
+        db.new_user(newUserAttributes, function(err){
+          if(err) return promise.fulfill([err]);
+          promise.fulfill(newUserAttributes);
+        });
+        return promise;
+      });
     everyauth.helpExpress(app);
   },
   login_check: function(req, res, next) {
