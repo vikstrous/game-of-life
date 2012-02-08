@@ -36,7 +36,7 @@ app.configure('development', function(){
   app.use(express.logger());
 });
 
-var port = process.env.PORT || 3000;
+var port = process.env.NODE_PORT || 3000;
 
 app.listen(port, function() {
   console.log("Listening on " + port);

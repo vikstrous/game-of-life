@@ -1,11 +1,18 @@
-var redis = require("redis"),
-    client = redis.createClient(2772, "50.30.35.9");
+var redis = require("redis");
+var client;
+
+if (process.env.NODE_REDIS == 'remote') {
+  client = redis.createClient(2772, "50.30.35.9");
+  client.auth("e8d00846616c5645c7b093c584b4b34b");
+}
+else {
+  client = redis.createClient();
+}
 
 client.on("error", function (err) {
     console.log("Redis error " + err);
 });
 
-client.auth("e8d00846616c5645c7b093c584b4b34b");
 
 var user_counter = 'global:nextUserId';
 var memstore = {};
