@@ -31,7 +31,6 @@ app.configure(function(){
   app.use(express.static(__dirname + '/public'));
 });
 
-
 app.configure('development', function(){
   app.use(express.logger());
 });

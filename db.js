@@ -19,6 +19,8 @@ var memstore = {};
 memstore.games = [];
 memstore.gid_by_name = {};
 
+//WARNING: NO EMAIL CHANGE SUPPORTED YET!!! DON'T CHANGE EMAILS YET
+//ALSO NO CHANGING GAME NAMES
 db = {
   client: client,
   //should be called exactly once
@@ -30,12 +32,21 @@ db = {
   },
   new_user: function(user, cb){
     db.next_uid(function(err, uid){
-      if(err) cb(err);
-      else {
+      if(typeof(cb) == 'function'){
+        if(err) return cb(err);
+        user.id = uid;
+        client.set('user_by_uid:' + uid, JSON.stringify(user), function(err){
+          if(err) return cb(err);
+          client.set('uid_by_email:' + user.email, uid, function(err){
+            if(err) return cb(err);
+            client.bgsave();
+            cb(null, user);
+          });
+        });
+      } else {
         client.set('user_by_uid:' + uid, JSON.stringify(user));
         client.set('uid_by_email:' + user.email, uid);
         client.bgsave();
-        cb();
       }
     });
   },
@@ -46,28 +57,41 @@ db = {
     client.get('uid_by_email:' + email, function(err, uid){
       if(err) cb(err, uid);
       else {
-        db.user_by_uid(uid, cb);
+        db.user_by_id(uid, cb);
       }
     });
   },
-  user_by_uid: function(uid, cb){
+  user_by_id: function(uid, cb){
     client.get('user_by_uid:' + uid, function(err, data){
       cb(err, JSON.parse(data));
     });
   },
-  new_game: function(data, cb){
-    memstore.games.push(data);
-    memstore.gid_by_name[data.name] = memstore.games.length - 1;
+  update_user: function(uid, user, cb){
+    client.set('user_by_uid:'+uid, JSON.stringify(user));
+    client.bgsave();
+    cb(null, user);
+    //WARNING: assume no email change
+  },
+  new_game: function(game, cb){
+    var gid = memstore.games.length;
+    memstore.games.push(game);
+    memstore.gid_by_name[game.name] = gid;
+    memstore.games[gid].id = gid;
     if(typeof(cb) == "function") cb(null);
   },
   game_by_name: function(name, cb){
     cb(null, memstore.games[memstore.gid_by_name[name]]);
   },
-  game_by_id: function(id, cb){
-    cb(null, memstore.games[id]);
+  game_by_id: function(gid, cb){
+    cb(null, memstore.games[gid]);
   },
   all_games: function(cb){
     cb(null, memstore.games);
+  },
+  update_game: function(gid, game, cb){
+    memstore.games[gid] = game;
+    //WARNING: assume no game name change
+    if(typeof(cb) == "function") cb(null);
   }
 };
 

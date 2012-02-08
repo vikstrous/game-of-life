@@ -1,5 +1,6 @@
 var everyauth = require('everyauth')
-  
+  , db = require(__dirname + '/db.js');
+
 module.exports = {
   middleware: function() { return everyauth.middleware() },
   init: function(app, db){
@@ -32,7 +33,7 @@ module.exports = {
         db.user_by_email(email, function(err, user){
           if (err) return promise.fulfill([err]);
           if (user && user.password == password){
-              promise.fulfill(user);
+            promise.fulfill(user);
           }
           promise.fulfill(['Wrong username or password.']);
         });
@@ -113,13 +114,17 @@ module.exports = {
         // Note: Index and db-driven validations are the only validations that occur 
         // here; all other validations occur in the `validateRegistration` step documented above.
         var promise = this.Promise();
-        db.new_user(newUserAttributes, function(err){
+        db.new_user(newUserAttributes, function(err, user){
           if(err) return promise.fulfill([err]);
-          promise.fulfill(newUserAttributes);
+          promise.fulfill(user);
         });
         return promise;
       });
-    everyauth.helpExpress(app);
+      
+      everyauth.helpExpress(app, {userAlias:'userr'});
+      everyauth.everymodule.findUserById(function (userId, callback) {
+        db.user_by_id(userId, callback);
+      });
   },
   login_check: function(req, res, next) {
     if(req.loggedIn){

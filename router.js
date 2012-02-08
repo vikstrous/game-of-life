@@ -22,10 +22,23 @@ module.exports = function(app){
     db.new_game({name:req.body.name});
     res.redirect('/game/'+req.body.name);
   });
-  app.get('/game/:name', login_check, function(req, res) {
-    db.game_by_name(req.params.name, function(err, game){
+  app.get('/game', login_check, function(req, res) {
+    db.game_by_id(req.user.current_gid, function(err, game) {
       if(game){
         res.render('game', {game:game});
+      } else {
+        res.redirect('/create');
+      }
+    });
+  });
+  app.get('/game/:name', login_check, function(req, res) {
+    db.game_by_name(req.params.name, function(err, game) {
+      if(game){
+        req.user.current_gid = game.id;
+        db.update_user(req.user.id, req.user, function(err){
+          if(err) throw err;
+          res.render('game', {game:game});
+        });
       } else {
         res.redirect('/create');
       }
