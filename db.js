@@ -23,10 +23,6 @@ memstore.gid_by_name = {};
 //ALSO NO CHANGING GAME NAMES
 db = {
   client: client,
-  //should be called exactly once
-  set_up_db: function(){
-    client.set(user_counter, 1);
-  },
   next_uid: function(cb){
     client.incr(user_counter, cb);
   },
