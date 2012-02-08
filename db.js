@@ -63,6 +63,9 @@ db = {
   game_by_name: function(name, cb){
     cb(null, memstore.games[memstore.gid_by_name[name]]);
   },
+  game_by_id: function(id, cb){
+    cb(null, memstore.games[id]);
+  },
   all_games: function(cb){
     cb(null, memstore.games);
   }
