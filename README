@@ -1,3 +1,8 @@
+Development tips:
+- I(Viktor) play to use nide and it looks really cool: http://coreh.github.com/nide/
+- Check out how to use node-inspector for debugging
+- Always run local.sh instead of run.sh if you want speed! (use a local instance of redis - it's very easy to set up and run)
+
 Notes:
 - ./setup.sh must be run to set up the dependencies
 - ./run.sh must be run to turn on the server
