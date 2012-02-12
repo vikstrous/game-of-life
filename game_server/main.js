@@ -6,20 +6,41 @@ var grid;
 var grid_colors = ["222222"];
 var moore = [[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]];
 var animation_id;
+var players = {p1:false,p2:false};
+var start_wait = false;
 
 module.exports = {
 onconnect : function (socket) {
 	
 	socket.on('page_ready', function(data) {
-		var data = {
-			grid_size : grid_size,
-			grid : grid
+		if(players.p1 == false) {
+			players.p1 = true;
+			socket.emit('waiting_for_player');
+		} else {
+			players.p2 = true;
+			var data = {
+				grid_size : grid_size,
+				grid : grid
+			}
+			socket.emit('page_ready_response', data);
+			socket.broadcast.emit('page_ready_response', data);
 		}
-		socket.emit('page_ready_response', data);
 	});
 	
 	socket.on('grid_click', function (data) {
-		grid[data.p_x][data.p_y] = (grid[data.p_x][data.p_y] + 1) % (grid_colors.length + 1);
+		if(grid[data.p_x][data.p_y] == 0) {
+			if(data.player1 && data.p_x < grid_size.x / 2) {
+				grid[data.p_x][data.p_y] = 1;
+			} else if(!data.player1 && data.p_x >= grid_size.x / 2) {
+				grid[data.p_x][data.p_y] = 2;
+}
+		} else {
+			if(data.player1 && data.p_x < grid_size.x / 2) {
+				grid[data.p_x][data.p_y] = 0;
+			} else if(!data.player1 && data.p_x >= grid_size.x / 2) {
+				grid[data.p_x][data.p_y] = 0;
+}
+		}
 		var response_data = {
 			x : data.p_x, y : data.p_y, new_value : grid[data.p_x][data.p_y]
 		};
@@ -28,17 +49,18 @@ onconnect : function (socket) {
 	});
 
 	socket.on('grid_play', function(data) {
-		socket.broadcast.emit('grid_played', null);
-		animation_id = setInterval(function() {
-			updateGrid();
-			socket.broadcast.emit('grid_update', grid);
-			socket.emit('grid_update', grid);
-		}, 1000 / 30);
-	});
-
-	socket.on('grid_pause', function(data) {
-		socket.broadcast.emit('grid_paused', null);
-		clearInterval(animation_id);
+		if(!start_wait) {
+			start_wait = true;
+			socket.emit('waiting_to_start');
+		} else {
+			socket.broadcast.emit('grid_played', null);
+			socket.emit('grid_played', null);
+			animation_id = setInterval(function() {
+				updateGrid();
+				socket.broadcast.emit('grid_update', grid);
+				socket.emit('grid_update', grid);
+			}, 1000 / 30);
+		}
 	});
 	var hs = socket.handshake;
 	console.log('A socket with sessionID ' + hs.sessionID + ' connected!');
@@ -87,18 +109,33 @@ function updateGrid() {
         for(var i = 0; i < grid_size.x; i++) {
                 newGrid[i] = new Array();
                 for(var j = 0; j < grid_size.y; j++) {
-                        var sum = 0;
+                        var sum = new Array();
+			sum[0] = 0;
+			sum[1] = 0;
+			sum[2] = 0;
                         for(var co = 0; co < moore.length; co++) {
 				var g_x = modToRange(i + moore[co][0], 0, grid_size.x);
 				var g_y = modToRange(j + moore[co][1], 0, grid_size.y);
                                 if(grid[g_x][g_y] > 0) {
-                                        sum++;
+                                        sum[0]++;
+					sum[grid[g_x][g_y]]++;
                                 }
                         }
-                        if(grid[i][j] == 0 && sum == 3) {
-                                newGrid[i][j] = 1;
-                        } else if(grid[i][j] > 0 && (sum == 2 || sum == 3)) {
-                                newGrid[i][j] = 1;
+                        if(grid[i][j] == 0 && sum[0] == 3) {
+				if(sum[1] > sum[2]) {
+	                                newGrid[i][j] = 1;
+				} else {
+					newGrid[i][j] = 2;
+				}
+                        } else if(grid[i][j] > 0 && (sum[0] == 2 || sum[0] == 3)) {
+                                sum[grid[i][j]]++;
+				if(sum[1] > sum[2]) {
+					newGrid[i][j] = 1;
+				} else if(sum[2] > sum[1]) {
+					newGrid[i][j] = 2;
+				} else {
+					newGrid[i][j] = grid[i][j];
+				}
                         } else {
                                 newGrid[i][j] = 0;
                         }
