@@ -13,6 +13,11 @@ module.exports = {
 onconnect : function (socket) {
 	
 	socket.on('page_ready', function(data) {
+		socket.gid = data;
+		db.user_by_id(socket.handshake.session.auth.userId, function(err, user){
+			console.log(user);
+		});
+		
 		if(players.p1 == false) {
 			players.p1 = true;
 			socket.emit('waiting_for_player');

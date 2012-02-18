@@ -121,7 +121,7 @@ module.exports = {
         return promise;
       });
       
-      everyauth.helpExpress(app, {userAlias:'userr'});
+      everyauth.helpExpress(app, {userAlias:'user'});
       everyauth.everymodule.findUserById(function (userId, callback) {
         db.user_by_id(userId, callback);
       });
