@@ -49,8 +49,10 @@ module.exports = function(app){
   app.get('/game/:name', login_check, function(req, res) {
     db.game_by_name(req.params.name, function(err, game) {
       if(game) {
-        //if there isn't already a second player, join
-        if(game.players[1] === undefined){
+        //if you are player one, do nothing
+        if (game.players[1] === req.user.id){
+          res.render('game', {game: game});
+        } else if (game.players[1] === undefined){ //if there isn't already a second player, join
           game.players[1] = req.user.id;
           db.update_game(game.id, game, function(err){
             if(err) throw err;
