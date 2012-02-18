@@ -19,8 +19,32 @@ module.exports = function(app){
     res.render('create');
   });
   app.post('/create', login_check, function(req, res) {
-    db.new_game({name:req.body.name, players:[req.user.id], grid_size:{x:50,y:50}});
-    res.redirect('/game/'+req.body.name);
+    var err = [];
+    if(!req.body.x || !req.body.y){
+      err.push("Please enter dimensions for the game.");
+    }
+    if(!req.body.name || req.body.name.length == 0){
+      err.push("Please enter a name for the game.");
+    }
+    if(req.body.x < 20 || req.body.y < 20){
+      err.push("Minimum size: 20");
+    }
+    if(req.body.x > 200 || req.body.y > 200){
+      err.push("Maximum size: 200");
+    }
+    if(err.length == 0){
+      db.game_by_name(req.body.name, function(err, game){
+        if(err) throw err;
+        if(!game){
+          db.new_game({name:req.body.name, players:[req.user.id], grid_size:{x:req.body.x,y:req.body.y}});
+          res.redirect('/game/'+req.body.name);
+        } else {
+          res.render('create', {error:['Game name already taken.']});
+        }
+      });
+    } else {
+      res.render('create', {error:err});
+    }
   });
   app.get('/game/:name', login_check, function(req, res) {
     db.game_by_name(req.params.name, function(err, game) {

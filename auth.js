@@ -3,7 +3,7 @@ var everyauth = require('everyauth')
 
 module.exports = {
   middleware: function() { return everyauth.middleware() },
-  init: function(app, db){
+  init: function(app){
     everyauth.password
       .loginWith('email')
       .getLoginPath('/login') // Uri path to the login page

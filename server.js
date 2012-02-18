@@ -10,7 +10,7 @@ var express = require('express')
   
 game_server.init();
 var app = express.createServer();
-auth.init(app, db);
+auth.init(app);
 
 var sessionStore = new RedisStore({client:db.client});
 
