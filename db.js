@@ -25,6 +25,22 @@ db = {
   next_uid: function(cb){
     client.incr(user_counter, cb);
   },
+  list_users: function(cb){
+    client.keys("user_by_uid:*", function(err, keys) {
+      var done = keys.length;
+      var users = [];
+      for(k in keys) {
+        client.get(keys[k], function(err, user){
+          if (err) throw err;
+          users.push(JSON.parse(user));
+          done-=1;
+          if (done == 0) {
+            cb(null, users);
+          }
+        });
+      }
+    });
+  },
   new_user: function(user, cb){
     db.next_uid(function(err, uid){
       if(typeof(cb) == 'function'){

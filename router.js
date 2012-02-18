@@ -21,6 +21,16 @@ module.exports = function(app){
   app.get('/profile', login_check, function(req, res) {
     res.render('profile', {profile: req.user});
   });
+  app.get('/profile/list', login_check, function(req, res) {
+    if (req.user.isAdmin) {
+      db.list_users(function(err, users) {
+        if(err) throw err;
+        res.render('profile_list', {profiles: users});
+      });
+    } else {
+      res.redirect('/profile');
+    }
+  });
   app.get('/profile/edit', login_check, function(req, res){
     res.render('profile_edit', {profile: req.user});
   });
@@ -38,7 +48,7 @@ module.exports = function(app){
     db.user_by_id(req.params.id, function(err, user) {
       if (err) throw err;
       if (user) {
-        if(req.user.id == user.id || user.isAdmin) {
+        if(req.user.id == user.id || req.user.isAdmin) {
           res.render('profile_edit', {profile: user});
         } else {
           res.redirect('/profile');
