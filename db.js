@@ -13,7 +13,6 @@ client.on("error", function (err) {
     console.log("Redis error " + err);
 });
 
-
 var user_counter = 'global:nextUserId';
 var memstore = {};
 memstore.games = [];

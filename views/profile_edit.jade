@@ -1,0 +1,8 @@
+- if ('undefined' !== profile)
+  form(method="post")
+    - for (a in profile)
+      label #{a}
+        br
+        input(name=a, value=profile[a])
+      br
+    input(type="submit", value="Edit")

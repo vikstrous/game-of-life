@@ -18,6 +18,36 @@ module.exports = function(app){
   app.get('/create', login_check, function(req, res) {
     res.render('create');
   });
+  app.get('/profile', login_check, function(req, res) {
+    res.render('profile', {profile: req.user});
+  });
+  app.get('/profile/edit', login_check, function(req, res){
+    res.render('profile_edit', {profile: req.user});
+  });
+  app.get('/profile/:id', login_check, function(req, res) {
+    db.user_by_id(req.params.id, function(err, user) {
+      if (err) throw err;
+      if (user) {
+        res.render('profile', {profile: user});
+      } else {
+        res.redirect('/profile');
+      }
+    });
+  });
+  app.get('/profile/:id/edit', login_check, function(req, res) {
+    db.user_by_id(req.params.id, function(err, user) {
+      if (err) throw err;
+      if (user) {
+        if(req.user.id == user.id || user.isAdmin) {
+          res.render('profile_edit', {profile: user});
+        } else {
+          res.redirect('/profile');
+        }
+      } else {
+        res.redirect('/profile');
+      }
+    });
+  });
   app.post('/create', login_check, function(req, res) {
     var err = [];
     if(!req.body.x || !req.body.y){
