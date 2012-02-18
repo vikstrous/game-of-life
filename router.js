@@ -19,7 +19,7 @@ module.exports = function(app){
     res.render('create');
   });
   app.post('/create', login_check, function(req, res) {
-    db.new_game({name:req.body.name, players:[req.user.id]});
+    db.new_game({name:req.body.name, players:[req.user.id], grid_size:{x:50,y:50}});
     res.redirect('/game/'+req.body.name);
   });
   app.get('/game/:name', login_check, function(req, res) {
