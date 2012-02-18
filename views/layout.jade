@@ -7,4 +7,8 @@ html
     script(src="/js/lib/jquery.min.js")
     script(src="/socket.io/socket.io.js")
   body
+    - if ('undefined' !== typeof user)
+      h1 User: #{user.email} (#{user.id})
+    - else
+      h1 User: Anonymous
     != body
