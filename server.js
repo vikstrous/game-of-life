@@ -3,7 +3,6 @@ var express = require('express')
   , io = require('socket.io')
   , RedisStore = require('connect-redis')(express)
   , db = require(__dirname + '/db.js')
-  , db_client = db.client
   , Session = require('connect').middleware.session.Session
   , parseCookie = require('connect').utils.parseCookie
   , game_server = require(__dirname + '/game_server/main.js')
@@ -13,7 +12,7 @@ game_server.init();
 var app = express.createServer();
 auth.init(app, db);
 
-var sessionStore = new RedisStore({client:db_client});
+var sessionStore = new RedisStore({client:db.client});
 
 app.configure(function(){
   app.set('view engine', 'jade');
