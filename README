@@ -10,7 +10,6 @@ Notes:
 
 TODO:
 - make joining games be a POST request
-- make user be added to a game as soon as they create it
 
 Decisions:
 - are multiple simultaneous games possible? or not, how do we prevent them?
