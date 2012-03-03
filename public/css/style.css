@@ -1,23 +1,62 @@
-html {
+html,
+body {
+  height: 100%;
   background-color: #000;
+  background-image: url("/images/game.png");
+  background-repeat: repeat;
+  background-attachment: scroll;
   color: #fff;
 }
-html #game_of_life {
+#game_of_life {
   border: 1px solid #000;
   background-color: #fff;
 }
-html a {
+a {
   color: #19a8b3;
 }
-html h1 {
+h1 {
   font-size: 2em;
 }
-html p {
+p {
   padding-bottom: 5px;
 }
-html label {
+label {
   padding-bottom: 3px;
 }
-html .hidden {
+.hidden {
   display: none;
+}
+.main {
+  background-color: #fff;
+  color: #000;
+  border-left: solid 10px #808080;
+  border-right: solid 10px #808080;
+  min-height: 100%;
+}
+.main-inner {
+  padding: 20px;
+}
+.banner {
+  font-size: 2em;
+}
+.banner a {
+  color: #000;
+}
+ul.nav {
+  margin-bottom: 20px;
+}
+ul.nav li {
+  display: inline;
+  margin-right: 5px;
+}
+.right {
+  float: right;
+}
+.left {
+  float: left;
+}
+a {
+  color: #285369;
+  font-weight: bold;
+  text-decoration: none;
 }

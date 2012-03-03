@@ -3,9 +3,6 @@ h1 I can haz gaem?
   ul#errors
     - each error in errors
       li.error= error
-p Or 
-  a(href="/join") join a game
-  | ?
 form(action="/create", method="POST")
   label Game name:
     br

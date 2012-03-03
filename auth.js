@@ -142,5 +142,18 @@ module.exports = {
       req.session.redirectTo = req.url
       res.redirect('/login');
     }
+  },
+  admin_only: function(req, res, next) {
+    if(req.loggedIn){
+
+      if (!req.user.isAdmin) {
+        next();
+      } else {
+        res.render('error', { status: 401 });
+      }
+    } else {
+      req.session.redirectTo = req.url
+      res.redirect('/login');
+    }
   }
 }

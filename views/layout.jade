@@ -3,12 +3,31 @@ html
   head
     title Game of Life
     link(rel="stylesheet", type="text/css", href="/css/reset.css")
+    link(rel='stylesheet', type="text/css", href='/css/960.css')
     link(rel="stylesheet", type="text/css", href="/css/style.css")
     script(src="/js/lib/jquery.min.js")
     script(src="/socket.io/socket.io.js")
   body
-    - if ('undefined' !== typeof user)
-      h1 User: #{user.email} (#{user.id})
-    - else
-      h1 User: Anonymous
-    != body
+    .container_12.main
+      - // this is to make padding work without messing up 100% min height
+      .main-inner
+        .banner
+          a(href='/') The Game Of Life and Death
+        ul.nav
+          - if(everyauth.loggedIn)
+            li
+              a(href="/join") Join a game
+            li
+              a(href="/create") Create a game
+            li.right
+              a(href="/logout") Logout
+          - else
+            li
+              a(href="/login") Login
+            li
+              a(href="/register") Register
+          - if ('undefined' !== typeof user)
+            li.right User: #{user.email} (#{user.id})
+          - else
+            li.right User: Anonymous
+        != body

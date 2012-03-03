@@ -1,10 +1,14 @@
-var login_check = require(__dirname + '/auth.js').login_check
+var auth = require(__dirname + '/auth.js')
+  , login_check = auth.login_check
+  , admin_only = auth.admin_only
   , db = require(__dirname + '/db.js');
 
 module.exports = function(app){
+
   app.get('/', function(req, res) {
     res.render('index');
   });
+
   app.get('/join', login_check, function(req, res) {
     db.all_games(function(err, games){
       if(err) throw err;
@@ -15,12 +19,19 @@ module.exports = function(app){
       }
     });
   });
+
+  app.get('/test', admin_only, function(req, res) {
+    res.render('test');
+  });
+
   app.get('/create', login_check, function(req, res) {
     res.render('create');
   });
+
   app.get('/profile', login_check, function(req, res) {
     res.render('profile', {profile: req.user});
   });
+
   app.get('/profile/list', login_check, function(req, res) {
     if (req.user.isAdmin) {
       db.list_users(function(err, users) {
@@ -31,9 +42,11 @@ module.exports = function(app){
       res.redirect('/profile');
     }
   });
+
   app.get('/profile/edit', login_check, function(req, res){
     res.render('profile_edit', {profile: req.user});
   });
+
   app.get('/profile/:id', login_check, function(req, res) {
     db.user_by_id(req.params.id, function(err, user) {
       if (err) throw err;
@@ -44,6 +57,7 @@ module.exports = function(app){
       }
     });
   });
+
   app.get('/profile/:id/edit', login_check, function(req, res) {
     db.user_by_id(req.params.id, function(err, user) {
       if (err) throw err;
@@ -58,6 +72,7 @@ module.exports = function(app){
       }
     });
   });
+
   app.post('/create', login_check, function(req, res) {
     var err = [];
     if(!req.body.x || !req.body.y){
@@ -86,6 +101,7 @@ module.exports = function(app){
       res.render('create', {error:err});
     }
   });
+
   app.get('/game/:name', login_check, function(req, res) {
     db.game_by_name(req.params.name, function(err, game) {
       if(game) {
