@@ -10,13 +10,15 @@ module.exports = function(app){
   });
 
   app.get('/join', login_check, function(req, res) {
-    db.all_games(function(err, games){
+    db.all_gids_in_state('open', function(err, gids){
       if(err) throw err;
-      if(games){
-        res.render('join', {games: games});
-      } else {
-        console.error("Games failed to fetch.");
-      }
+      db.games_by_ids(gids, function(err, games){
+        if(games){
+          res.render('join', {games: games});
+        } else {
+          console.error("Games failed to fetch.");
+        }
+      });
     });
   });
 
@@ -91,7 +93,7 @@ module.exports = function(app){
       db.game_by_name(req.body.name, function(err, game){
         if(err) throw err;
         if(!game){
-          db.new_game({name:req.body.name, players:[req.user.id], grid_size:{x:req.body.x,y:req.body.y}});
+          db.new_game({name:req.body.name, state:'open', players:[req.user.id], grid_size:{x:req.body.x,y:req.body.y}});
           res.redirect('/game/'+req.body.name);
         } else {
           res.render('create', {error:['Game name already taken.']});
