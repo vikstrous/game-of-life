@@ -15,10 +15,18 @@ $(document).ready(function(){
 	$("#play_pause").click(function() {
 		if($("#play_pause").data("value") == "play") {
 			$("#play_pause").data("value", "pause");
-			socket.emit('grid_play', null);
+			var data = { points:new Array() };
+			for(var i = 0; i < grid_size.x; i++) {
+				for(var j = 0; j < grid_size.y; j++) {
+					if(grid[i][j] > 0) {
+						data.points.push({x:i,y:j});
+					}
+				}
+			}
+			socket.emit('grid_play', data);
 		}
 	});
-	socket.emit('page_ready',null);
+	socket.emit('page_ready',$("#gid").html());
 });
 socket.on('waiting_for_player', function() {
 	$('#header').html('Waiting for player to join...');
@@ -39,34 +47,35 @@ socket.on('page_ready_response', function(data) {
 	for(var i = 0; i < grid_size.x; i++) {
 		grid[i] = new Array();
 		for(var j = 0; j < grid_size.y; j++) {
-			grid[i][j] = data.grid[i][j];
+			grid[i][j] = 0;
 		}
 	}
-	repaint();
-});
-socket.on('grid_click_response', function(data) {
-	grid[data.x][data.y] = data.new_value;
 	repaint();
 });
 socket.on('grid_played', function(data) {
 	$("#play_pause").html("Playing");
+	grid = data;
+	playing = true;
+	animation_id = setInterval("update()", 1000/30);
 });
-socket.on('grid_update', function(newGrid) {
-	for(var i = 0; i < grid_size.x; i++) {
-		for(var j = 0; j < grid_size.y; j++) {
-			grid[i][j] = newGrid[i][j];
-		}
-	}
-	repaint();
-});
+
+function update() {
+		grid = game_logic.update(grid, grid_size);
+		repaint();
+}
 
 function repaint() {
 	var i_start, i_stop;
-	if(player1) {
-		i_start = 0;
-		i_stop = grid_size.x / 2;
+	if(!playing) {
+		if(player1) {
+			i_start = 0;
+			i_stop = grid_size.x / 2;
+		} else {
+			i_start = grid_size.x / 2;
+			i_stop = grid_size.x;
+		}
 	} else {
-		i_start = grid_size.x / 2;
+		i_start = 0;
 		i_stop = grid_size.x;
 	}
 	var canvas = document.getElementById("game_of_life");
@@ -83,7 +92,7 @@ function repaint() {
 	for(var i = i_start; i <= i_stop; i++) {
 		context.moveTo(i*line_separation.x, 0);
 		context.lineTo(i*line_separation.x, screen_height);
-	}	
+	}
 	for(var i = 0; i <= grid_size.y; i++) {
 		context.moveTo(i_start*line_separation.x, i*line_separation.y);
 		context.lineTo(i_stop*line_separation.x, i*line_separation.y);
@@ -123,12 +132,22 @@ function clicked(e) {
 		x -= offset.left;
 		y -= offset.top;
 		var screen_width = document.getElementById("game_of_life").width;
-		var data = {
-			player1 : player1,
-			p_x : Math.floor(x/screen_width*grid_size.x),
-			p_y : Math.floor(y/screen_width*grid_size.y)
-		};
-		socket.emit('grid_click', data);
+		p_x = Math.floor(x/screen_width*grid_size.x),
+		p_y = Math.floor(y/screen_width*grid_size.y)
+
+		if(grid[p_x][p_y] == 0) {
+                        if(player1 && p_x < grid_size.x / 2) {
+                                grid[p_x][p_y] = 1;
+                        } else if(!player1 && p_x >= grid_size.x / 2) {
+                                grid[p_x][p_y] = 2;
+			}
+                } else {
+                        if(player1 && p_x < grid_size.x / 2) {
+                                grid[p_x][p_y] = 0;
+                        } else if(!player1 && p_x >= grid_size.x / 2) {
+                                grid[p_x][p_y] = 0;
+			}
+                }
 		repaint();
 	}
 }
