@@ -3,16 +3,15 @@ var redis = require("redis"),
     db = require(__dirname + '/../db.js');
 
 var moore = [[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]];
-var start_wait = false;
 
 module.exports = {
 onconnect : function (socket) {
 	
 	socket.on('page_ready', function(data) {
-		socket.gid = data;
 		db.user_by_id(socket.handshake.session.auth.userId, function(err, user){
 			console.log(user);
 		});
+		socket.gid = data;
 		db.game_by_id(socket.gid, function(err, game) {
 			if(game.players[1] == undefined) {
 				socket.emit('waiting_for_player');
@@ -27,7 +26,8 @@ onconnect : function (socket) {
 	});
 	
 	socket.on('grid_play', function(data) {
-		db.game_by_id(socket.gid, function(err, game) {
+		var gid = socket.gid;
+		db.game_by_id(gid, function(err, game) {
 			var userId = socket.handshake.session.auth.userId;
 			console.assert((userId == game.players[0] || userId == game.players[1]), "The player IDs of game " + game.id + " are wrong: " + game.players);
 			if(game.players[0] == userId) {
@@ -35,41 +35,69 @@ onconnect : function (socket) {
 			} else {
 				game.start_state[1] = data.points;
 			}
-			if(game.start_wait == undefined) {
-				game.start_wait = true;
-				socket.emit('waiting_to_start');
+			if(game.state == 'waiting1') {
+				game.state = 'waiting2';
+				db.update_game(gid, game, function(err){
+					if(err) throw err;
+					socket.emit('waiting_to_start');
+				});
 			} else {
-				var grid = new Array();
-				for(var i = 0; i < game.grid_size.x; i++) {
-					grid[i] = new Array();
-					for(var j = 0; j < game.grid_size.y; j++) {
-						grid[i][j] = 0;
+				db.state = 'processing';
+				db.update_game(gid, game, function(err){
+					if(err) throw err;
+					var grid = new Array();
+					for(var i = 0; i < game.grid_size.x; i++) {
+						grid[i] = new Array();
+						for(var j = 0; j < game.grid_size.y; j++) {
+							grid[i][j] = 0;
+						}
 					}
-				}
-				for(var i = 0; i < game.start_state[0].length; i++) {
-					var point = game.start_state[0][i];
-					if(point.x < game.grid_size.x / 2) {
-						grid[point.x][point.y] = 1;
+					for(var i = 0; i < game.start_state[0].length; i++) {
+						var point = game.start_state[0][i];
+						if(point.x < game.grid_size.x / 2) {
+							grid[point.x][point.y] = 1;
+						}
 					}
-				}
-				for(var i = 0; i < game.start_state[1].length; i++) {
-					var point = game.start_state[1][i];
-					if(point.x >= game.grid_size.x / 2) {
-						grid[point.x][point.y] = 2;
+					for(var i = 0; i < game.start_state[1].length; i++) {
+						var point = game.start_state[1][i];
+						if(point.x >= game.grid_size.x / 2) {
+							grid[point.x][point.y] = 2;
+						}
 					}
-				}
-				socket.broadcast.emit('grid_played', grid);
-				socket.emit('grid_played', grid);
-				var iteration = 1;
-				var winner = -1;
-				while(winner < 0) {
-					grid = game_logic.update(grid, game.grid_size);
-					winner = game_logic.winner(iteration, game_logic.grid_pop(grid, game.grid_size));
-				}
-				//TODO: archive the game record and update player records with wins/losses.
-				console.log("winner: " + winner);
+					socket.broadcast.emit('grid_played', grid);
+					socket.emit('grid_played', grid);
+					var iteration = 1;
+					var winner = -1;
+					while(winner < 0) {
+						grid = game_logic.update(grid, game.grid_size);
+						winner = game_logic.winner(iteration, game_logic.grid_pop(grid, game.grid_size));
+					}
+					//TODO: archive the game record and update player records with wins/losses.
+					db.game_state_change(gid, 'archived', function(err){
+						if(err) throw err;
+						db.user_by_id(game.players[0], function(err, player1){
+							if(winner == 1){
+								player1.wins += 1;
+							} else if (winner == 2) {
+								player1.losses += 1;
+							} else if (winner == 0) {
+								player1.ties += 1;
+							}
+							db.update_user(player1.id, player1);
+						});
+						db.user_by_id(game.players[1], function(err, player2){
+							if(winner == 1){
+								player2.losses += 1;
+							} else if (winner == 2) {
+								player2.wins += 1;
+							} else if (winner == 0) {
+								player2.ties += 1;
+							}
+							db.update_user(player2.id, player2);
+						});
+					});
+				});
 			}
-			db.update_game(game.id, game, function() {});
 		});
 	});
 	var hs = socket.handshake;

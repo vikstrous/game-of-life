@@ -9,11 +9,9 @@ Notes:
 - the server will now autorestart on changes
 
 TODO:
-- quitting a game
+- quitting a game?
 - time limit to make a move
 - ajax all the things
-- library
 - benchmark browsers
-
-Decisions:
-- are multiple simultaneous games possible? or not, how do we prevent them?
+- keep win counts
+- archive games

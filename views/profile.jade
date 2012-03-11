@@ -1,4 +1,7 @@
 - if ('undefined' !== typeof profile)
   p #{profile.email}
+  p wins: #{user.wins}
+  p losses: #{user.losses}
+  p ties: #{user.ties}
   - if (user.id == profile.id)
     a(href="/profile/"+user.id+"/edit") Edit

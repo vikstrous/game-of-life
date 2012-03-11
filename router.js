@@ -122,19 +122,21 @@ module.exports = function(app){
   app.get('/game/:name', login_check, function(req, res) {
     db.game_by_name(req.params.name, function(err, game) {
       if(game) {
-        //if you are player one, do nothing
+        //if you are player 1, do nothing
         if (game.players[0] === req.user.id){
           res.render('game', {game: game});
+        //if you are player 2, do nothing
+        } else if (game.players[1] === req.user.id){
+          res.render('game', {game: game});
+        //if you are joining, join
         } else if (game.players[1] === undefined){ //if there isn't already a second player, join
           game.players[1] = req.user.id;
+          game.state = "waiting1";
           db.update_game(game.id, game, function(err){
             if(err) throw err;
             res.render('game', {game:game});
           });
-        } else if (game.players[1] === req.user.id){
-          res.render('game', {game: game});
         } else {
-          //TODO: allow watchers
           res.redirect('/');
         }
       } else {
