@@ -1,6 +1,6 @@
 var moore = [[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]];
 var game_logic = {
-	generation_limit : 5000,
+	generation_limit : 500,
 	update : function(grid, grid_size) {
 		var newGrid = new Array();
 		for(var i = 0; i < grid_size.x; i++) {
@@ -51,7 +51,7 @@ var game_logic = {
 			}
 		}
 		return {pop1: pop1, pop2: pop2};
-	}
+	},
 };
 if("undefined" !== typeof(module) && module.exports !== undefined) {
 	module.exports = game_logic;
