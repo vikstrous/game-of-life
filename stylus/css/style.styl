@@ -12,6 +12,18 @@ html, body
   margin 10px
 #display_table tr td
   text-align center
+td.select_on, td.select_off
+  width 10px
+  height 10px
+  border 1px solid #444444
+td.select_on
+  background-color black
+td.select_off
+  background-color white
+div.template_pick
+  padding 2px
+div.template_selected
+  background-color blue
 a
   color #19A8B3
 h1
@@ -53,17 +65,18 @@ a
   border 1px solid black
   padding 4px
 #template_pane
-  width 220px
+  width 260px
   clear both
   margin 20px 0 10px
-  background-color #888888
-  border 1px solid black
+  background-color #DDDDDD
 #template_pane .viewport
-  width 200px
-  height 200px
+  width 240px
+  height 400px
   overflow hidden
   position relative
 #template_pane .overview
+  text-align left
+  padding 0 0 0 5px
   list-style none
   position absolute
   left 0

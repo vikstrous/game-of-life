@@ -1,5 +1,16 @@
-var library = {
-  "still":[
+var library = [
+  {name:"default",
+   hrname:"Default",
+   list:[
+     {
+       "name":"Default",
+       "tiles":[[1]]
+     }
+  ]
+  },
+  {name:"still",
+   hrname:"Still-Lifes",
+   list:[
     {
       "name":"Block",
       "tiles":[[1,1],[1,1]]
@@ -10,14 +21,17 @@ var library = {
     },
     {
       "name":"Loaf",
-      "tiles":[[0,1,1,0], [1,0,0,1], [0,1,0,0], [0,0,1,0]]
+      "tiles":[[0,1,1,0], [1,0,0,1], [0,1,0,1], [0,0,1,0]]
     },
     {
       "name":"Boat",
       "tiles":[[1,1,0], [1,0,1], [0,1,0]]
     }
-  ],
-  "oscilate":[
+  ]
+  },
+  {name:"oscillators",
+   hrname:"Oscillators",
+   list:[
     {
       "name":"Blinker",
       "tiles":[[1,1,1]]
@@ -30,18 +44,24 @@ var library = {
       "name":"Beacon",
       "tiles":[[1,1,0,0], [1,1,0,0], [0,0,1,1], [0,0,1,1]]
     }
-  ],
-  "spaceships":[
+  ]
+  },
+  {name:"spaceships",
+   hrname:"Spaceships",
+   list:[
     {
       "name":"Glider",
-      "tiles":[[0,0,1], [1,0,1], [1,1,1]]
+      "tiles":[[0,0,1], [1,0,1], [0,1,1]]
     },
     {
       "name":"Lightweight spaceship",
       "tiles":[[1,0,0,1,0], [0,0,0,0,1], [1,0,0,0,1], [0,1,1,1,1]]
     }
-  ],
-  "growth":[
+  ]
+  },
+  {name:"growth",
+   hrname:"Growth",
+   list:[
     {
       "name":"The F-pentomino",
       "tiles":[[0,1,1], [1,1,0], [0,1,0]]
@@ -55,4 +75,5 @@ var library = {
       "tiles":[[0,1,0,0,0,0,0], [0,0,0,1,0,0,0], [1,1,0,0,1,1,1]]
     }
   ]
-}
+  }
+]

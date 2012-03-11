@@ -12,7 +12,7 @@ var playing = false;
 var pop;
 
 $(document).ready(function() {
-	$('#template_pane').tinyscrollbar();
+	init_template_pane();
 	document.getElementById("game_of_life").addEventListener('click', clicked, false);
 	$("#play_pause").data("value", "play");
 	$("#play_pause").click(function() {
@@ -28,6 +28,9 @@ $(document).ready(function() {
 			}
 			socket.emit('grid_play', data);
 		}
+	});
+	$('[id^="template_pick_"]').on('click', function() {
+		//alert($(this).attr('name'));
 	});
 	socket.emit('page_ready',$("#gid").html());
 });
@@ -177,4 +180,34 @@ function clicked(e) {
 		}
 		repaint();
 	}
+}
+function init_template_pane() {
+	for(var i = 0; i < library.length; i++) {
+		$('#template_content').append($('<h1>').text(library[i].hrname));
+        for(var j = 0; j < library[i].list.length; j++) {
+			var $div = $('<div>');
+			$div.attr('id', 'template_pick_' +  library[i].list[j].name);
+			$div.addClass('template_pick');
+			$div.append($('<h2>').text(library[i].list[j].name));
+			$div.append(getTableForTiles(library[i].list[j].tiles, library[i].list[j].name));
+			$('#template_content').append($div);
+		}
+	}
+	$('#template_content :nth-child(2)').addClass('template_selected');
+	$('#template_pane').tinyscrollbar();
+}
+function getTableForTiles(tiles, name) {
+	//var tableHTML = '<table id="template_pick_' + name + '">';
+	var tableHTML = '<table>';
+	var width = tiles[0].length;
+	var height = tiles.length;
+	for(var i = 0; i < height; i++) {
+		tableHTML += '<tr>';
+		for(var j = 0; j < width; j++) {
+			tableHTML += '<td class="select_' + ((tiles[i][j] == 1) ? 'on' : 'off') + '"></td>';
+		}
+		tableHTML += '</tr>';
+	}
+	tableHTML += '</table>';
+	return tableHTML;
 }

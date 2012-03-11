@@ -15,6 +15,24 @@ body {
 #display_table tr td {
   text-align: center;
 }
+td.select_on,
+td.select_off {
+  width: 10px;
+  height: 10px;
+  border: 1px solid #444;
+}
+td.select_on {
+  background-color: #000;
+}
+td.select_off {
+  background-color: #fff;
+}
+div.template_pick {
+  padding: 2px;
+}
+div.template_selected {
+  background-color: #00f;
+}
 a {
   color: #19a8b3;
 }
@@ -71,19 +89,20 @@ a {
   padding: 4px;
 }
 #template_pane {
-  width: 220px;
+  width: 260px;
   clear: both;
   margin: 20px 0 10px;
-  background-color: #888;
-  border: 1px solid #000;
+  background-color: #ddd;
 }
 #template_pane .viewport {
-  width: 200px;
-  height: 200px;
+  width: 240px;
+  height: 400px;
   overflow: hidden;
   position: relative;
 }
 #template_pane .overview {
+  text-align: left;
+  padding: 0 0 0 5px;
   list-style: none;
   position: absolute;
   left: 0;
