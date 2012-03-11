@@ -160,8 +160,8 @@ function clicked(e) {
 		x -= offset.left;
 		y -= offset.top;
 		var screen_width = document.getElementById("game_of_life").width;
-		p_x = Math.floor(x/screen_width*grid_size.x),
-		p_y = Math.floor(y/screen_width*grid_size.y)
+		var p_x = Math.floor(x/screen_width*grid_size.x),
+		var p_y = Math.floor(y/screen_width*grid_size.y)
 
 		if(grid[p_x][p_y] == 0) {
 			if(player1 && p_x < grid_size.x / 2) {
