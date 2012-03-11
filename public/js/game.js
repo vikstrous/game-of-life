@@ -148,17 +148,17 @@ function repaint(pop) {
 function clicked(e) {	
 	if(!playing) {
 		var x, y;
-		var offset = $("#game_of_life").offset();
 		// Get the mouse position relative to the canvas element.
-		if (e.layerX || e.layerX == 0) {
-			x = e.layerX;
-			y = e.layerY;
-		} else if (e.offsetX || e.offsetX == 0) {
+		if (e.offsetX || e.offsetX == 0) {
 			x = e.offsetX;
 			y = e.offsetY;
+		} else if (e.layerX || e.layerX == 0) {
+			x = e.layerX;
+			y = e.layerY;
+			var offset = $("#game_of_life").offset();
+			x -= offset.left;
+			y -= offset.top;
 		}
-		x -= offset.left;
-		y -= offset.top;
 		var screen_width = document.getElementById("game_of_life").width;
 		p_x = Math.floor(x/screen_width*grid_size.x),
 		p_y = Math.floor(y/screen_width*grid_size.y)
