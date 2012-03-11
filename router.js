@@ -111,11 +111,11 @@ module.exports = function(app){
           db.new_game({name:req.body.name, state:'open', players:[req.user.id], grid_size:{x:req.body.x,y:req.body.y}, start_state:[null, null]});
           res.redirect('/game/'+req.body.name);
         } else {
-          res.render('create', {error:['Game name already taken.']});
+          res.render('create', {errors:['Game name already taken.']});
         }
       });
     } else {
-      res.render('create', {error:err});
+      res.render('create', {errors:err});
     }
   });
 
