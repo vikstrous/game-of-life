@@ -8,10 +8,10 @@ module.exports = {
 onconnect : function (socket) {
 	
 	socket.on('page_ready', function(data) {
-		socket.gid = data;
 		db.user_by_id(socket.handshake.session.auth.userId, function(err, user){
 			console.log(user);
 		});
+		socket.gid = data;
 		db.game_by_id(socket.gid, function(err, game) {
 			if(game.players[1] == undefined) {
 				socket.emit('waiting_for_player');
@@ -75,7 +75,26 @@ onconnect : function (socket) {
 					//TODO: archive the game record and update player records with wins/losses.
 					db.game_state_change(gid, 'archived', function(err){
 						if(err) throw err;
-						console.log("winner: " + winner);
+						db.user_by_id(game.players[0], function(err, player1){
+							if(winner == 1){
+								player1.wins += 1;
+							} else if (winner == 2) {
+								player1.losses += 1;
+							} else if (winner == 0) {
+								player1.ties += 1;
+							}
+							db.update_user(player1.id, player1);
+						});
+						db.user_by_id(game.players[1], function(err, player2){
+							if(winner == 1){
+								player2.losses += 1;
+							} else if (winner == 2) {
+								player2.wins += 1;
+							} else if (winner == 0) {
+								player2.ties += 1;
+							}
+							db.update_user(player2.id, player2);
+						});
 					});
 				});
 			}

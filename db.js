@@ -13,6 +13,14 @@ client.on("error", function (err) {
     console.log("Redis error " + err);
 });
 
+function init_numeric_fields(obj, fields){
+  for (f in fields){
+    if(obj[fields[f]] == undefined)
+      obj[fields[f]] = 0;
+  }
+  return obj;
+}
+
 var user_counter = 'global:nextUserId';
 var game_counter = 'global:nextGameId';
 var memstore = {};
@@ -51,6 +59,7 @@ db = {
     });
   },
   new_user: function(user, cb){
+    user = init_numeric_fields(user, ['wins', 'losses', 'ties']);
     db.next_uid(function(err, uid){
       if(typeof(cb) == 'function'){
         if(err) return cb(err);
@@ -58,7 +67,6 @@ db = {
         client.set('user_by_uid:' + uid, JSON.stringify(user), function(err){
           if(err) return cb(err);
           client.set('uid_by_email:' + user.email, uid, function(err){
-            client.bgsave();
             cb(err, user);
           });
         });
@@ -66,7 +74,6 @@ db = {
         user.id = uid;
         client.set('user_by_uid:' + uid, JSON.stringify(user));
         client.set('uid_by_email:' + user.email, uid);
-        client.bgsave();
       }
     });
   },
@@ -88,8 +95,7 @@ db = {
   },
   update_user: function(uid, user, cb){
     client.set('user_by_uid:'+uid, JSON.stringify(user));
-    client.bgsave();
-    cb(null);
+    if('function' == typeof cb) cb(null);
     //WARNING: assume no email change
   },
 
@@ -142,6 +148,9 @@ db = {
   game_state_change: function(gid, new_state, cb){
     db.game_by_id(gid, function(err, game){
       if(err) throw err;
+      if(new_state == 'archived'){
+        client.del('gid_by_name:' + game.name)
+      }
       client.smove('all_games_state_'+game.state, 'all_games_state_'+new_state, gid, function(err){
         if(err) throw err;
         game.state = new_state;
