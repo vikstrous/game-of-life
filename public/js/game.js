@@ -9,7 +9,7 @@ var socket = io.connect();
 var player1 = false;
 var playing = false;
 
-$(document).ready(function(){	
+$(document).ready(function() {
 	document.getElementById("game_of_life").addEventListener('click', clicked, false);
 	$("#play_pause").data("value", "play");
 	$("#play_pause").click(function() {
@@ -56,7 +56,8 @@ socket.on('grid_played', function(data) {
 	$("#play_pause").html("Playing");
 	grid = data;
 	playing = true;
-	animation_id = setInterval("update()", 1000/30);
+	$("#pop_display").show();
+	animation_id = setInterval("update()", 1000/20);
 });
 
 function update() {
@@ -114,6 +115,12 @@ function repaint() {
 				context.stroke();
 			}
 		}
+	}
+	
+	if(playing) {
+		pop = game_logic.grid_pop(grid, grid_size);
+		$("#pop1").html(pop.pop1);
+		$("#pop2").html(pop.pop2);
 	}
 }
 

@@ -5,6 +5,22 @@ h2
   = game.id
 canvas#game_of_life(width="400px", height="400px")
 br
+div#pop_display(style="display: none;")
+  table
+    tr
+      td.pop_display(colspan="2")
+        = "Population"
+    tr
+      td.pop_display
+        = "Player 1"
+      td.pop_display
+        = "Player 2"
+    tr
+      td#pop1.pop_display
+        = "..."
+      td#pop2.pop_display
+        = "..."
+br
 button#play_pause play
 script(src="/js/game.js")
 script(src="/js/shared/shared.js")

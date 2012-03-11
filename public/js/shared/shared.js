@@ -39,6 +39,18 @@ var game_logic = {
 		while(val < lower) { val+= (upper - lower); }
 		while(val >= upper) { val -= (upper - lower); }
 		return val;
+	},
+	grid_pop: function(grid, grid_size) {
+		var pop1 = 0;
+		var pop2 = 0;
+		for(var i = 0; i < grid_size.x; i++) {
+			for(var j = 0; j < grid_size.y; j++) {
+				if(grid[i][j] != 0) {
+					(grid[i][j] == 1) ? pop1++ : pop2++;
+				}
+			}
+		}
+		return {pop1: pop1, pop2: pop2};
 	}
 };
 if("undefined" !== typeof(module) && module.exports !== undefined) {
