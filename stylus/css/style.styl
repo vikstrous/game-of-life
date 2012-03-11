@@ -9,6 +9,9 @@ html, body
 #game_of_life
   border 1px solid black
   background-color white
+  margin 10px
+#display_table tr td
+  text-align center
 a
   color #19A8B3
 h1
@@ -49,3 +52,44 @@ a
 #info_display tr td
   border 1px solid black
   padding 4px
+#template_pane
+  width 220px
+  clear both
+  margin 20px 0 10px
+  background-color #888888
+  border 1px solid black
+#template_pane .viewport
+  width 200px
+  height 200px
+  overflow hidden
+  position relative
+#template_pane .overview
+  list-style none
+  position absolute
+  left 0
+  top 0
+#template_pane .thumb .end, #template_pane .thumb
+  background-color #003D5D
+#template_pane .scrollbar
+  position relative
+  float right
+  right 15px
+#template_pane .track
+  background-color #D8EEFD
+  height 100%
+  width 13px
+  position relative
+  padding 0 1px
+#template_pane .thumb
+  height 20px
+  width 13px
+  cursor pointer
+  overflow hidden
+  position absolute
+  top 0
+#template_pane .thumb .end
+  overflow hidden
+  height 5px
+  width 13px
+#template_pane .disable
+  display none

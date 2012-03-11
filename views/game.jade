@@ -3,7 +3,22 @@ h2
   = game.name
 .hidden#gid
   = game.id
-canvas#game_of_life(width="400px", height="400px")
+table#display_table
+  tr
+    td(rowspan="2")
+      canvas#game_of_life(width="400px", height="400px")
+    td
+      h1
+        = "Templates"
+  tr
+    td
+      div#template_pane
+        div.scrollbar
+          div.track
+            div.thumb
+              div.end
+        div.viewport
+          div#template_content.overview
 br
 div#info_display(style="display: none;")
   table
@@ -30,3 +45,4 @@ br
 button#play_pause play
 script(src="/js/game.js")
 script(src="/js/shared/shared.js")
+script(src="/js/lib/jquery.tinyscrollbar.min.js")

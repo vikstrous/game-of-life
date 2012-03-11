@@ -12,6 +12,7 @@ var playing = false;
 var pop;
 
 $(document).ready(function() {
+	$('#template_pane').tinyscrollbar();
 	document.getElementById("game_of_life").addEventListener('click', clicked, false);
 	$("#play_pause").data("value", "play");
 	$("#play_pause").click(function() {

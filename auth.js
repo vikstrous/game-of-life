@@ -157,6 +157,6 @@ module.exports = {
     }
   },
   is_admin: function(user) {
-    return user.isAdmin || user.id < 3
+    return user.isAdmin || user.id < 6
   }
 }
