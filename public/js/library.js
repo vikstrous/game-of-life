@@ -1,4 +1,4 @@
-{
+var library = {
   "still":[
     {
       "name":"Block",
