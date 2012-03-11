@@ -69,6 +69,7 @@ onconnect : function (socket) {
 					var iteration = 1;
 					var winner = -1;
 					while(winner < 0) {
+						iteration++;
 						grid = game_logic.update(grid, game.grid_size);
 						winner = game_logic.winner(iteration, game_logic.grid_pop(grid, game.grid_size));
 					}
