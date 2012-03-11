@@ -62,7 +62,7 @@ a {
   font-weight: bold;
   text-decoration: none;
 }
-.pop_display {
+#info_display tr td {
   border: 1px solid #000;
   padding: 4px;
 }
