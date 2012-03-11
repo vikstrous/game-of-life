@@ -146,7 +146,7 @@ module.exports = {
   admin_only: function(req, res, next) {
     if(req.loggedIn){
 
-      if (is_admin(req.user)) {
+      if (module.exports.is_admin(req.user)) {
         next();
       } else {
         res.render('error', { status: 401 });
@@ -157,6 +157,6 @@ module.exports = {
     }
   },
   is_admin: function(user) {
-    return req.user.isAdmin || req.user.id < 3
+    return user.isAdmin || user.id < 3
   }
 }

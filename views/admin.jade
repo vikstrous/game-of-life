@@ -1,0 +1,11 @@
+h1 Games:
+ul
+- if ('undefined' !== typeof games)
+  - for g in games
+    li
+      form(action="/admin/games/delete", method="POST")
+        input(type="hidden", name="gid", value=g.id)
+        br
+        a(href="/game/"+g.name)= g.name
+        br
+        input(type="submit", value="Delete!")

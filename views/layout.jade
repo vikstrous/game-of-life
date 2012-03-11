@@ -26,7 +26,8 @@ html
             li
               a(href="/register") Register
           - if ('undefined' !== typeof user)
-            li.right User: #{user.email} (#{user.id})
+            li.right
+              a(href="/profile/"+user.id) #{user.email}
           - else
             li.right User: Anonymous
         != body

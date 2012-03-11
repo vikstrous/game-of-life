@@ -1,5 +1,5 @@
 - if ('undefined' !== typeof profiles && profiles.length > 0)
-  - for (p in profiles)
+  - for p in profiles
     ul
-      - for (d in profiles[p])
-        li #{d}: #{profiles[p][d]}
+       li
+         a(href="/profile/"+p.id) #{p.email}
