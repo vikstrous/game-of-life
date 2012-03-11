@@ -9,7 +9,11 @@ Notes:
 - the server will now autorestart on changes
 
 TODO:
-- make joining games be a POST request
+- quitting a game
+- time limit to make a move
+- ajax all the things
+- library
+- benchmark browsers
 
 Decisions:
 - are multiple simultaneous games possible? or not, how do we prevent them?
