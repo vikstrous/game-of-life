@@ -129,10 +129,10 @@ function clicked(e) {
 		var x, y;
 		var offset = $("#game_of_life").offset();
 		// Get the mouse position relative to the canvas element.
-		if (e.layerX || ev.layerX == 0) {
+		if (e.layerX || e.layerX == 0) {
 			x = e.layerX;
 			y = e.layerY;
-		} else if (ev.offsetX || ev.offsetX == 0) {
+		} else if (e.offsetX || e.offsetX == 0) {
 			x = e.offsetX;
 			y = e.offsetY;
 		}
