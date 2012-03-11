@@ -14,17 +14,31 @@ module.exports = function(app){
     db.all_gids_in_state('open', function(err, gids){
       if(err) throw err;
       db.games_by_ids(gids, function(err, games){
-        if(games){
-          res.render('join', {games: games});
-        } else {
-          console.error("Games failed to fetch.");
-        }
+        res.render('join', {games: games});
       });
     });
   });
 
   app.get('/test', admin_only, function(req, res) {
     res.render('test');
+  });
+
+  app.get('/admin', admin_only, function(req, res) {
+    db.all_gids_in_state('open', function(err, gids){
+      if(err) throw err;
+      db.games_by_ids(gids, function(err, games){
+        res.render('admin', {games: games});
+      });
+    });
+  });
+
+  app.post('/admin/games/delete', admin_only, function(req, res) {
+    db.game_by_id(req.body.gid, function(err, game){
+      if(err) throw err;
+      db.delete_game(game, function(){
+        res.redirect('back');
+      });
+    });
   });
 
   app.get('/create', login_check, function(req, res) {

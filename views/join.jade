@@ -1,5 +1,6 @@
 h1 Join a game!
 ul
-- for g in games
-  li
-    a(href="/game/"+g.name)= g.name
+- if ('undefined' !== typeof games)
+  - for g in games
+    li
+      a(href="/game/"+g.name)= g.name

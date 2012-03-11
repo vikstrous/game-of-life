@@ -130,9 +130,7 @@ db = {
     for (i in gids){
       gids[i] = 'game_by_gid:' + gids[i];
     }
-    console.log('games by ids')
     client.mget(gids, function(err, data){
-      console.log(data);
       for(i in data){
         data[i] = JSON.parse(data[i]);
       }
@@ -153,6 +151,18 @@ db = {
         if(err) throw err;
         game.state = new_state;
         db.update_game(gid, game, cb);
+      });
+    });
+  },
+  delete_game: function(game, cb){
+    client.del('game_by_gid:'+game.id, function(err){
+      if(err) throw err;
+      client.srem('all_games_state_'+game.state, game.id, function(err){
+        if(game.state == 'open'){
+          client.del('game_by_name:'+game.name, cb);
+        } else {
+          cb(null);
+        }
       });
     });
   },
