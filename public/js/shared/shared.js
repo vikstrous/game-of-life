@@ -52,6 +52,16 @@ var game_logic = {
 		}
 		return {pop1: pop1, pop2: pop2};
 	},
+	winner: function(iteration, pop) {
+		if(iteration >= game_logic.generation_limit || pop.pop1 == 0 || pop.pop2 == 0) {
+			var winner = 0;
+			if(pop.pop1 > pop.pop2) winner = 1;
+			if(pop.pop2 > pop.pop1) winner = 2;
+			return winner;
+		} else {
+			return -1;
+		}
+	}
 };
 if("undefined" !== typeof(module) && module.exports !== undefined) {
 	module.exports = game_logic;

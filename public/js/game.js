@@ -1,5 +1,5 @@
 //var grid_colors = ["#ff00ff","#00ffff","#ffff00"];
-var grid_colors = ["22ff22", "ff2222"];
+var grid_colors = ["rgb(40,255,40)", "rgb(255,40,40)"];
 var moore = [[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]];
 var animation_id;
 var grid;
@@ -65,13 +65,11 @@ socket.on('grid_played', function(data) {
 function update() {
 		grid = game_logic.update(grid, grid_size);
 		pop = game_logic.grid_pop(grid, grid_size);
-		repaint(pop);
 		iteration++;
-		if(iteration >= game_logic.generation_limit || pop.pop1 == 0 || pop.pop2 == 0) {
+		repaint(pop);
+		var winner = game_logic.winner(iteration, pop);
+		if(winner >= 0) {
 			clearInterval(animation_id);
-			var winner = 0;
-			if(pop.pop1 > pop.pop2) winner = 1;
-			if(pop.pop2 > pop.pop1) winner = 2;
 			display_winner(winner);
 		}
 }
@@ -81,7 +79,7 @@ function display_winner(winner) {
 		switch(winner) {
 			case 0: win_str = "Tie Game!"; break;
 			case 1: win_str = player1 ? "You win!" : "You lose!"; break;
-			case 2: win_str = player2 ? "You win!" : "You lose!"; break;
+			case 2: win_str = (!player1) ? "You win!" : "You lose!"; break;
 		}
 		alert(win_str);
 }
@@ -160,8 +158,8 @@ function clicked(e) {
 			y -= offset.top;
 		}
 		var screen_width = document.getElementById("game_of_life").width;
-		var p_x = Math.floor(x/screen_width*grid_size.x),
-		var p_y = Math.floor(y/screen_width*grid_size.y)
+		var p_x = Math.floor(x/screen_width*grid_size.x);
+		var p_y = Math.floor(y/screen_width*grid_size.y);
 
 		if(grid[p_x][p_y] == 0) {
 			if(player1 && p_x < grid_size.x / 2) {

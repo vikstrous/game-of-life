@@ -60,8 +60,14 @@ onconnect : function (socket) {
 				}
 				socket.broadcast.emit('grid_played', grid);
 				socket.emit('grid_played', grid);
-				//TODO: make the server calc who wins
-				//grid = game_logic.update(grid, game.grid_size);
+				var iteration = 1;
+				var winner = -1;
+				while(winner < 0) {
+					grid = game_logic.update(grid, game.grid_size);
+					winner = game_logic.winner(iteration, game_logic.grid_pop(grid, game.grid_size));
+				}
+				//TODO: archive the game record and update player records with wins/losses.
+				console.log("winner: " + winner);
 			}
 			db.update_game(game.id, game, function() {});
 		});
