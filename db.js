@@ -23,6 +23,8 @@ memstore.gid_by_name = {};
 //state: open, waiting1, waiting2, processing, archived
 var game_states = {'open':'open', 'waiting1':'waiting1', 'waiting2':'waiting2', 'processing':'processing', 'archived':'archived'};
 
+//only open games are indexed by name!
+
 //WARNING: NO EMAIL CHANGE SUPPORTED YET!!! DON'T CHANGE EMAILS YET
 //ALSO NO CHANGING GAME NAMES
 db = {
