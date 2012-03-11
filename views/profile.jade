@@ -1,3 +1,4 @@
 - if ('undefined' !== typeof profile)
-  - for (a in profile)
-    p #{a} is #{profile[a]}
+  p #{profile.email}
+  - if (user.id == profile.id)
+    a(href="/profile/"+user.id+"/edit") Edit

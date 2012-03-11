@@ -49,7 +49,7 @@ ul.nav {
 }
 ul.nav li {
   display: inline;
-  margin-right: 5px;
+  margin-right: 10px;
 }
 .right {
   float: right;
