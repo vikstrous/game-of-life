@@ -1,6 +1,7 @@
 var auth = require(__dirname + '/auth.js')
   , login_check = auth.login_check
   , admin_only = auth.admin_only
+  , is_admin = auth.is_admin
   , db = require(__dirname + '/db.js');
 
 module.exports = function(app){
@@ -35,7 +36,7 @@ module.exports = function(app){
   });
 
   app.get('/profile/list', login_check, function(req, res) {
-    if (req.user.isAdmin) {
+    if (is_admin(req.user)) {
       db.list_users(function(err, users) {
         if(err) throw err;
         res.render('profile_list', {profiles: users});
@@ -64,7 +65,7 @@ module.exports = function(app){
     db.user_by_id(req.params.id, function(err, user) {
       if (err) throw err;
       if (user) {
-        if(req.user.id == user.id || req.user.isAdmin) {
+        if(req.user.id == user.id || is_admin(req.user)) {
           res.render('profile_edit', {profile: user});
         } else {
           res.redirect('/profile');
