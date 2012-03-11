@@ -21,7 +21,6 @@ memstore.gid_by_name = {};
 //user = {id, email, password}
 //game = {id, name, state, ???}
 //state: open, waiting1, waiting2, processing, archived
-var game_states = {'open':'open', 'waiting1':'waiting1', 'waiting2':'waiting2', 'processing':'processing', 'archived':'archived'};
 
 //only open games are indexed by name!
 
@@ -103,7 +102,7 @@ db = {
     } else {
       db.next_gid(function(err, gid) {
         game.id = gid
-        client.sadd('all_games_state_' + game_states[game.state], gid);
+        client.sadd('all_games_state_' + game.state, gid);
         client.set('game_by_gid:' + gid, JSON.stringify(game), function(err){
           if(err) return cb(err);
           client.set('gid_by_name:' + game.name, gid, function(err){
@@ -138,19 +137,16 @@ db = {
     });
   },
   all_gids_in_state: function(state, cb){
-    if (game_states[state] !== undefined){
-      client.smembers('all_games_state_'+state, cb);
-    } else {
-      cb("State does not exist");
-    }
+    client.smembers('all_games_state_'+state, cb);
   },
-  game_state_change: function(old_state, new_state, gid, cb){
-    client.smove(old_state, new_state, gid, function(err){
+  game_state_change: function(gid, new_state, cb){
+    db.game_by_id(gid, function(err, game){
       if(err) throw err;
-      db.game_by_id(gid, function(err, game){
+      client.smove('all_games_state_'+game.state, 'all_games_state_'+new_state, gid, function(err){
         if(err) throw err;
         game.state = new_state;
-        db.update_game(gid, game, cb);
+        client.set('game_by_gid:'+gid, JSON.stringify(game));
+        if(typeof(cb) == "function") cb(err);
       });
     });
   },
@@ -169,14 +165,12 @@ db = {
   update_game: function(gid, game, cb){
     db.game_by_id(gid, function(err, old_game){
       if(old_game.state != game.state){
-        db.game_state_change(old_game.state, game.state, gid, function(err){
+        db.game_state_change(gid, game.state, function(err){
           client.set('game_by_gid:'+gid, JSON.stringify(game));
-          client.bgsave();
           if(typeof(cb) == "function") cb(err);
         });
       } else {
         client.set('game_by_gid:'+gid, JSON.stringify(game));
-        client.bgsave();
       if(typeof(cb) == "function") cb(err);
       }
     })
