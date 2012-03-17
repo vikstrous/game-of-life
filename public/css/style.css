@@ -29,9 +29,10 @@ td.select_off {
 }
 div.template_pick {
   padding: 2px;
+  text-align: left;
 }
 div.template_selected {
-  background-color: #00f;
+  background-color: #03d;
 }
 a {
   color: #19a8b3;
@@ -88,55 +89,10 @@ a {
   border: 1px solid #000;
   padding: 4px;
 }
-#template_pane {
-  width: 260px;
-  clear: both;
-  margin: 20px 0 10px;
-  background-color: #ddd;
-}
-#template_pane .viewport {
-  width: 240px;
+.scroll-pane {
+  width: 300px;
   height: 400px;
-  overflow: hidden;
-  position: relative;
-}
-#template_pane .overview {
-  text-align: left;
-  padding: 0 0 0 5px;
-  list-style: none;
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-#template_pane .thumb .end,
-#template_pane .thumb {
-  background-color: #003d5d;
-}
-#template_pane .scrollbar {
-  position: relative;
-  float: right;
-  right: 15px;
-}
-#template_pane .track {
-  background-color: #d8eefd;
-  height: 100%;
-  width: 13px;
-  position: relative;
-  padding: 0 1px;
-}
-#template_pane .thumb {
-  height: 20px;
-  width: 13px;
-  cursor: pointer;
-  overflow: hidden;
-  position: absolute;
-  top: 0;
-}
-#template_pane .thumb .end {
-  overflow: hidden;
-  height: 5px;
-  width: 13px;
-}
-#template_pane .disable {
-  display: none;
+  overflow: auto;
+  background-color: #aaa;
+  padding: 10px;
 }

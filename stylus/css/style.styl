@@ -22,8 +22,9 @@ td.select_off
   background-color white
 div.template_pick
   padding 2px
+  text-align left
 div.template_selected
-  background-color blue
+  background-color #0033dd
 a
   color #19A8B3
 h1
@@ -64,45 +65,9 @@ a
 #info_display tr td
   border 1px solid black
   padding 4px
-#template_pane
-  width 260px
-  clear both
-  margin 20px 0 10px
-  background-color #DDDDDD
-#template_pane .viewport
-  width 240px
+.scroll-pane
+  width 300px
   height 400px
-  overflow hidden
-  position relative
-#template_pane .overview
-  text-align left
-  padding 0 0 0 5px
-  list-style none
-  position absolute
-  left 0
-  top 0
-#template_pane .thumb .end, #template_pane .thumb
-  background-color #003D5D
-#template_pane .scrollbar
-  position relative
-  float right
-  right 15px
-#template_pane .track
-  background-color #D8EEFD
-  height 100%
-  width 13px
-  position relative
-  padding 0 1px
-#template_pane .thumb
-  height 20px
-  width 13px
-  cursor pointer
-  overflow hidden
-  position absolute
-  top 0
-#template_pane .thumb .end
-  overflow hidden
-  height 5px
-  width 13px
-#template_pane .disable
-  display none
+  overflow auto
+  background-color #aaaaaa
+  padding 10px

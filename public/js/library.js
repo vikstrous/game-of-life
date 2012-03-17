@@ -3,8 +3,14 @@ var library = [
    hrname:"Default",
    list:[
      {
-       "name":"Default",
-       "tiles":[[1]]
+       hrname:"Default",
+       name:"default",
+       tiles:[[1]]
+     },
+     {
+       hrname:"Erase",
+       name:"erase",
+       tiles:[[0]]
      }
   ]
   },
@@ -12,20 +18,24 @@ var library = [
    hrname:"Still-Lifes",
    list:[
     {
-      "name":"Block",
-      "tiles":[[1,1],[1,1]]
+      hrname:"Block",
+      name:"block",
+      tiles:[[1,1],[1,1]]
     },
     {
-      "name":"Beehive",
-      "tiles":[[0,1,1,0], [1,0,0,1], [0,1,1,0]]
+      hrname:"Beehive",
+      name:"beehive",
+      tiles:[[0,1,1,0], [1,0,0,1], [0,1,1,0]]
     },
     {
-      "name":"Loaf",
-      "tiles":[[0,1,1,0], [1,0,0,1], [0,1,0,1], [0,0,1,0]]
+      name:"loaf",
+      hrname:"Loaf",
+      tiles:[[0,1,1,0], [1,0,0,1], [0,1,0,1], [0,0,1,0]]
     },
     {
-      "name":"Boat",
-      "tiles":[[1,1,0], [1,0,1], [0,1,0]]
+      name:"boat",
+      hrname:"Boat",
+      tiles:[[1,1,0], [1,0,1], [0,1,0]]
     }
   ]
   },
@@ -33,16 +43,19 @@ var library = [
    hrname:"Oscillators",
    list:[
     {
-      "name":"Blinker",
-      "tiles":[[1,1,1]]
+      name:"blinker",
+      hrname:"Blinker",
+      tiles:[[1,1,1]]
     },
     {
-      "name":"Toad",
-      "tiles":[[0,1,1,1], [1,1,1,0]]
+      name:"toad",
+      hrname:"Toad",
+      tiles:[[0,1,1,1], [1,1,1,0]]
     },
     {
-      "name":"Beacon",
-      "tiles":[[1,1,0,0], [1,1,0,0], [0,0,1,1], [0,0,1,1]]
+      hrname:"Beacon",
+      name:"beacon",
+      tiles:[[1,1,0,0], [1,1,0,0], [0,0,1,1], [0,0,1,1]]
     }
   ]
   },
@@ -50,12 +63,14 @@ var library = [
    hrname:"Spaceships",
    list:[
     {
-      "name":"Glider",
-      "tiles":[[0,0,1], [1,0,1], [0,1,1]]
+      name:"glider",
+      hrname:"Glider",
+      tiles:[[0,0,1], [1,0,1], [0,1,1]]
     },
     {
-      "name":"Lightweight spaceship",
-      "tiles":[[1,0,0,1,0], [0,0,0,0,1], [1,0,0,0,1], [0,1,1,1,1]]
+      name:"lightweight-spaceship",
+      hrname:"Lightweight Spaceship",
+      tiles:[[1,0,0,1,0], [0,0,0,0,1], [1,0,0,0,1], [0,1,1,1,1]]
     }
   ]
   },
@@ -63,20 +78,24 @@ var library = [
    hrname:"Growth",
    list:[
     {
-      "name":"The F-pentomino",
-      "tiles":[[0,1,1], [1,1,0], [0,1,0]]
+      name:"f-pentomino",
+      hrname:"The F-pentomino",
+      tiles:[[0,1,1], [1,1,0], [0,1,0]]
     },
     {
-      "name":"Diehard",
-      "tiles":[[0,0,0,0,0,0,1,0], [1,1,0,0,0,0,0,0], [0,1,0,0,0,1,1,1]]
+      name:"diehard",
+      hrname:"Diehard",
+      tiles:[[0,0,0,0,0,0,1,0], [1,1,0,0,0,0,0,0], [0,1,0,0,0,1,1,1]]
     },
     {
-      "name":"Acorn",
-      "tiles":[[0,1,0,0,0,0,0], [0,0,0,1,0,0,0], [1,1,0,0,1,1,1]]
+      name:"acorn",
+      hrname:"Acorn",
+      tiles:[[0,1,0,0,0,0,0], [0,0,0,1,0,0,0], [1,1,0,0,1,1,1]]
     },
     {
-      "name":"Infinite",
-      "tiles":[
+      name:"infinite",
+      hrname:"Infinite",
+      tiles:[
         [0,0,0,0,0,0,1,0],
         [0,0,0,0,1,0,1,1],
         [0,0,0,0,1,0,1,0],
@@ -88,12 +107,13 @@ var library = [
   ]
   },
   {
-    "name":"generators",
-    "hrname":"Generators",
-    "list":[
+    name:"generators",
+    hrname:"Generators",
+    list:[
       {
-        "name":"Gosper Gun",
-        "tiles": [
+        name:"gosper-gun",
+        hrname:"Gosper Glider Gun",
+        tiles: [
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1],

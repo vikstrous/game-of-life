@@ -9,7 +9,9 @@ var iteration = 1;
 var socket = io.connect();
 var player1 = false;
 var playing = false;
+var started = false;
 var pop;
+var current_template = {name: 'default', tiles: [[1]], type: 'default'};
 
 $(document).ready(function() {
 	init_template_pane();
@@ -30,7 +32,7 @@ $(document).ready(function() {
 		}
 	});
 	$('[id^="template_pick_"]').on('click', function() {
-		//alert($(this).attr('name'));
+		picked_template($(this))
 	});
 	socket.emit('page_ready',$("#gid").html());
 });
@@ -43,6 +45,7 @@ socket.on('waiting_to_start', function() {
 	playing = true;
 });
 socket.on('page_ready_response', function(data) {
+	started = true;
 	if(player1) {
 		$('#header').html('Battle! (Player 1)');
 	} else {
@@ -148,7 +151,7 @@ function repaint(pop) {
 }
 
 function clicked(e) {	
-	if(!playing) {
+	if(!playing && started) {
 		var x, y;
 		// Get the mouse position relative to the canvas element.
 		if (e.offsetX || e.offsetX == 0) {
@@ -165,17 +168,29 @@ function clicked(e) {
 		var p_x = Math.floor(x/screen_width*grid_size.x);
 		var p_y = Math.floor(y/screen_width*grid_size.y);
 
-		if(grid[p_x][p_y] == 0) {
-			if(player1 && p_x < grid_size.x / 2) {
-				grid[p_x][p_y] = 1;
-			} else if(!player1 && p_x >= grid_size.x / 2) {
-				grid[p_x][p_y] = 2;
-			}
+		var tiles = current_template.tiles;
+		var bounds;
+		if(player1) {
+			bounds = {l:0,t:0,r:grid_size.x/2,b:grid_size.y};
 		} else {
-			if(player1 && p_x < grid_size.x / 2) {
-				grid[p_x][p_y] = 0;
-			} else if(!player1 && p_x >= grid_size.x / 2) {
-				grid[p_x][p_y] = 0;
+			bounds = {l:grid_size.x/2,t:0,r:grid_size.x,b:grid_size.y};
+		}
+
+		for (var i = 0; i < tiles.length; i++) {
+			for(var j = 0; j < tiles[0].length; j++) {
+				var n_x = p_x + j;
+				var n_y = p_y + i;
+				if(n_x >= bounds.l && n_x < bounds.r && n_y >= bounds.t && n_y < bounds.b) {
+					if(tiles[i][j] == 0) {
+						grid[n_x][n_y] = 0;
+					} else {
+						if(player1) {
+							grid[n_x][n_y] = 1;
+						} else {
+							grid[n_x][n_y] = 2;
+						}
+					}
+				}
 			}
 		}
 		repaint();
@@ -183,21 +198,23 @@ function clicked(e) {
 }
 function init_template_pane() {
 	for(var i = 0; i < library.length; i++) {
+		var type_name = library[i].name;
 		$('#template_content').append($('<h1>').text(library[i].hrname));
         for(var j = 0; j < library[i].list.length; j++) {
 			var $div = $('<div>');
-			$div.attr('id', 'template_pick_' +  library[i].list[j].name);
+			$div.attr('id', 'template_pick_' +  library[i].list[j].name + '_' + type_name);
 			$div.addClass('template_pick');
-			$div.append($('<h2>').text(library[i].list[j].name));
+			$div.append($('<h2>').text(library[i].list[j].hrname));
 			$div.append(getTableForTiles(library[i].list[j].tiles, library[i].list[j].name));
 			$('#template_content').append($div);
 		}
 	}
 	$('#template_content :nth-child(2)').addClass('template_selected');
-	$('#template_pane').tinyscrollbar();
+	$(function() {
+		$('.scroll-pane').jScrollPane();
+	});
 }
 function getTableForTiles(tiles, name) {
-	//var tableHTML = '<table id="template_pick_' + name + '">';
 	var tableHTML = '<table>';
 	var width = tiles[0].length;
 	var height = tiles.length;
@@ -210,4 +227,23 @@ function getTableForTiles(tiles, name) {
 	}
 	tableHTML += '</table>';
 	return tableHTML;
+}
+function picked_template($template) {
+	var split = $template.attr('id').split('_');
+	var template_name = split[2];
+	var template_type = split[3];
+	var old_template = current_template;
+	for(var i = 0; i < library.length; i++) {
+		if(library[i].name == template_type) {
+			for(var j = 0; j < library[i].list.length; j++) {
+				if(library[i].list[j].name == template_name) {
+					current_template = library[i].list[j];
+					current_template.type = library[i].name;
+					break;
+				}
+			}
+		}
+	}
+	$('#template_pick_' + old_template.name + '_' + old_template.type).removeClass('template_selected');
+	$('#template_pick_' + current_template.name + '_' + current_template.type).addClass('template_selected');
 }
