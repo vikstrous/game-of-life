@@ -4,30 +4,43 @@ var auth = require(__dirname + '/auth.js')
   , is_admin = auth.is_admin
   , db = require(__dirname + '/db.js');
 
+function render(req, res, path, vars){
+  //if mobile
+  if (/mobile/i.test(req.header('user-agent'))){
+    if(vars === undefined)
+      vars = {};
+    vars.layout = 'mobile/layout-mobi';
+    res.render(path, vars);
+  }
+  else {
+    res.render(path, vars);
+  }
+};
+
 module.exports = function(app){
 
   app.get('/', function(req, res) {
-    res.render('index');
+    render(req, res, 'index');
   });
 
   app.get('/join', login_check, function(req, res) {
     db.all_gids_in_state('open', function(err, gids){
       if(err) throw err;
       db.games_by_ids(gids, function(err, games){
-        res.render('join', {games: games});
+        render(req, res, 'join', {games: games});
       });
     });
   });
 
   app.get('/test', admin_only, function(req, res) {
-    res.render('test');
+    render(req, res, 'test');
   });
 
   app.get('/admin', admin_only, function(req, res) {
     db.all_gids_in_state('open', function(err, gids){
       if(err) throw err;
       db.games_by_ids(gids, function(err, games){
-        res.render('admin', {games: games});
+        render(req, res, 'admin', {games: games});
       });
     });
   });
@@ -42,18 +55,18 @@ module.exports = function(app){
   });
 
   app.get('/create', login_check, function(req, res) {
-    res.render('create');
+    render(req, res, 'create');
   });
 
   app.get('/profile', login_check, function(req, res) {
-    res.render('profile', {profile: req.user});
+    render(req, res, 'profile', {profile: req.user});
   });
 
   app.get('/profile/list', login_check, function(req, res) {
     if (is_admin(req.user)) {
       db.list_users(function(err, users) {
         if(err) throw err;
-        res.render('profile_list', {profiles: users});
+        render(req, res, 'profile_list', {profiles: users});
       });
     } else {
       res.redirect('/profile');
@@ -61,14 +74,14 @@ module.exports = function(app){
   });
 
   app.get('/profile/edit', login_check, function(req, res){
-    res.render('profile_edit', {profile: req.user});
+    render(req, res, 'profile_edit', {profile: req.user});
   });
 
   app.get('/profile/:id', login_check, function(req, res) {
     db.user_by_id(req.params.id, function(err, user) {
       if (err) throw err;
       if (user) {
-        res.render('profile', {profile: user});
+        render(req, res, 'profile', {profile: user});
       } else {
         res.redirect('/profile');
       }
@@ -80,7 +93,7 @@ module.exports = function(app){
       if (err) throw err;
       if (user) {
         if(req.user.id == user.id || is_admin(req.user)) {
-          res.render('profile_edit', {profile: user});
+          render(req, res, 'profile_edit', {profile: user});
         } else {
           res.redirect('/profile');
         }
@@ -111,11 +124,11 @@ module.exports = function(app){
           db.new_game({name:req.body.name, state:'open', players:[req.user.id], grid_size:{x:req.body.x,y:req.body.y}, start_state:[null, null]});
           res.redirect('/game/'+req.body.name);
         } else {
-          res.render('create', {errors:['Game name already taken.']});
+          render(req, res, 'create', {errors:['Game name already taken.']});
         }
       });
     } else {
-      res.render('create', {errors:err});
+      render(req, res, 'create', {errors:err});
     }
   });
 
@@ -124,17 +137,17 @@ module.exports = function(app){
       if(game) {
         //if you are player 1, do nothing
         if (game.players[0] === req.user.id){
-          res.render('game', {game: game});
+          render(req, res, 'game', {game: game});
         //if you are player 2, do nothing
         } else if (game.players[1] === req.user.id){
-          res.render('game', {game: game});
+          render(req, res, 'game', {game: game});
         //if you are joining, join
         } else if (game.players[1] === undefined){ //if there isn't already a second player, join
           game.players[1] = req.user.id;
           game.state = "waiting1";
           db.update_game(game.id, game, function(err){
             if(err) throw err;
-            res.render('game', {game:game});
+            render(req, res, 'game', {game:game});
           });
         } else {
           res.redirect('/');

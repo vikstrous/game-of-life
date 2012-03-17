@@ -7,11 +7,12 @@ Notes:
 - ./setup.sh must be run to set up the dependencies
 - ./run.sh or ./local.sh must be run to turn on the server
 - the server will now autorestart on changes
+- forgot mobile for now - it's a lot of effort and computation is slow
 
 TODO:
 - quitting a game?
 - time limit to make a move
 - ajax all the things
 - benchmark browsers
-- keep win counts
-- archive games
+- refactor DB layer to use atomic operations
+- replay games
