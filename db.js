@@ -24,8 +24,7 @@ function init_numeric_fields(obj, fields){
 var user_counter = 'global:nextUserId';
 var game_counter = 'global:nextGameId';
 var memstore = {};
-memstore.games = [];
-memstore.gid_by_name = {};
+
 //user = {id, email, password}
 //game = {id, name, state, ???}
 //state: open, waiting1, waiting2, processing, archived
@@ -42,6 +41,7 @@ db = {
   next_gid: function(cb){
     client.incr(game_counter, cb);
   },
+  //doesn't work well?
   list_users: function(cb){
     client.keys("user_by_uid:*", function(err, keys) {
       var done = keys.length;
@@ -61,20 +61,8 @@ db = {
   new_user: function(user, cb){
     user = init_numeric_fields(user, ['wins', 'losses', 'ties']);
     db.next_uid(function(err, uid){
-      if(typeof(cb) == 'function'){
-        if(err) return cb(err);
-        user.id = uid;
-        client.set('user_by_uid:' + uid, JSON.stringify(user), function(err){
-          if(err) return cb(err);
-          client.set('uid_by_email:' + user.email, uid, function(err){
-            cb(err, user);
-          });
-        });
-      } else {
-        user.id = uid;
-        client.set('user_by_uid:' + uid, JSON.stringify(user));
-        client.set('uid_by_email:' + user.email, uid);
-      }
+      user.id = uid;
+      client.mset('user_by_uid:' + uid, JSON.stringify(user), 'uid_by_email:' + user.email, uid, cb);
     });
   },
   user_by_email_exists: function(email, cb){
@@ -94,8 +82,7 @@ db = {
     });
   },
   update_user: function(uid, user, cb){
-    client.set('user_by_uid:'+uid, JSON.stringify(user));
-    if('function' == typeof cb) cb(null);
+    client.set('user_by_uid:'+uid, JSON.stringify(user), cb);
     //WARNING: assume no email change
   },
 
@@ -109,17 +96,12 @@ db = {
       db.next_gid(function(err, gid) {
         game.id = gid
         client.sadd('all_games_state_' + game.state, gid);
-        client.set('game_by_gid:' + gid, JSON.stringify(game), function(err){
-          if(err) return cb(err);
-          client.set('gid_by_name:' + game.name, gid, function(err){
-            if(typeof(cb) == "function") cb(err);
-          });
-        });
+        client.mset('game_by_gid:' + gid, JSON.stringify(game), 'open_gid_by_name:' + game.name, gid, cb);
       });
     }
   },
   game_by_name: function(name, cb){
-    client.get('gid_by_name:' + name, function(err, gid){
+    client.get('open_gid_by_name:' + name, function(err, gid){
       if(err) cb(err, gid);
       else {
         db.game_by_id(gid, cb);
@@ -149,40 +131,33 @@ db = {
     db.game_by_id(gid, function(err, game){
       if(err) throw err;
       if(new_state == 'archived'){
-        client.del('gid_by_name:' + game.name)
+        client.del('open_gid_by_name:' + game.name)
       }
-      client.smove('all_games_state_'+game.state, 'all_games_state_'+new_state, gid, function(err){
-        if(err) throw err;
-        game.state = new_state;
-        client.set('game_by_gid:'+gid, JSON.stringify(game));
-        if(typeof(cb) == "function") cb(err);
-      });
+      game.state = new_state;
+      client.multi()
+        .smove('all_games_state_'+game.state, 'all_games_state_'+new_state, gid)
+        .set('game_by_gid:'+gid, JSON.stringify(game))
+        .exec(cb);
     });
   },
   delete_game: function(game, cb){
-    client.del('game_by_gid:'+game.id, function(err){
-      if(err) throw err;
-      client.srem('all_games_state_'+game.state, game.id, function(err){
-        if(game.state == 'open'){
-          client.del('game_by_name:'+game.name, cb);
-        } else {
-          cb(null);
-        }
-      });
-    });
+    var m = client.multi();
+    m.del('game_by_gid:'+game.id);
+    m.srem('all_games_state_'+game.state, game.id);
+    if(game.state == 'open'){
+      m.del('game_by_name:'+game.name);
+    };
+    m.exec(cb);
   },
   update_game: function(gid, game, cb){
     db.game_by_id(gid, function(err, old_game){
-      if(old_game.state != game.state){
-        db.game_state_change(gid, game.state, function(err){
-          client.set('game_by_gid:'+gid, JSON.stringify(game));
-          if(typeof(cb) == "function") cb(err);
-        });
-      } else {
-        client.set('game_by_gid:'+gid, JSON.stringify(game));
-      if(typeof(cb) == "function") cb(err);
+      var m = client.multi();
+      if(old_game.state != game.state) {
+        m.smove('all_games_state_'+old_game.state, 'all_games_state_'+game.state, gid);
       }
-    })
+      m.set('game_by_gid:'+gid, JSON.stringify(game));
+      m.exec(cb);
+    });
     //WARNING: assume no game name change
   }
 };

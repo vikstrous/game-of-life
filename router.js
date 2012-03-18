@@ -62,15 +62,11 @@ module.exports = function(app){
     render(req, res, 'profile', {profile: req.user});
   });
 
-  app.get('/profile/list', login_check, function(req, res) {
-    if (is_admin(req.user)) {
-      db.list_users(function(err, users) {
-        if(err) throw err;
-        render(req, res, 'profile_list', {profiles: users});
-      });
-    } else {
-      res.redirect('/profile');
-    }
+  app.get('/profile/list', admin_only, function(req, res) {
+    db.list_users(function(err, users) {
+      if(err) throw err;
+      render(req, res, 'profile_list', {profiles: users});
+    });
   });
 
   app.get('/profile/edit', login_check, function(req, res){
