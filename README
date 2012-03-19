@@ -14,6 +14,5 @@ TODO:
 - time limit to make a move
 - ajax all the things
 - benchmark browsers
-- refactor DB layer to use atomic operations
 - replay games
-- ability to change scripts being loaded inside of the view
+- ability to change scripts/css being loaded inside of the view

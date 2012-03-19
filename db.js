@@ -1,3 +1,4 @@
+//TODO: Fix use of "this"!!!
 var redis = require("redis");
 var client;
 
@@ -14,152 +15,221 @@ client.on("error", function (err) {
 });
 
 function init_numeric_fields(obj, fields){
+  if(typeof obj === 'string'){
+    obj = JSON.parse(obj);
+  }
   for (f in fields){
     if(obj[fields[f]] == undefined)
       obj[fields[f]] = 0;
   }
   return obj;
 }
+function init_list_fields(obj, fields){
+  if(typeof obj === 'string'){
+    obj = JSON.parse(obj);
+  }
+  for (f in fields){
+    if(obj[fields[f]] == undefined)
+      obj[fields[f]] = [];
+  }
+  return obj;
+}
 
-var user_counter = 'global:nextUserId';
-var game_counter = 'global:nextGameId';
-var memstore = {};
+function extract(obj1, properties, obj2){
+  if(!obj1){
+    obj1 = {};
+  }
+  if(typeof obj1 === 'string'){
+    obj1 = JSON.parse(obj1);
+  }
+  if(typeof obj2 !== 'object' || obj2 === null){
+    obj2 = {};
+  }
+  for (p in properties){
+    obj2[properties[p]] = obj1[properties[p]];
+  }
+  return obj2;
+}
 
 //user = {id, email, password}
-//game = {id, name, state, ???}
-//state: open, waiting1, waiting2, processing, archived
+var User = function(data){
+  data = init_list_fields(data, ['wins', 'losses', 'ties']);
+  extract(data, this.properties, this);
+}
 
-//only open games are indexed by name!
-
-//WARNING: NO EMAIL CHANGE SUPPORTED YET!!! DON'T CHANGE EMAILS YET
-//ALSO NO CHANGING GAME NAMES
-db = {
-  client: client,
-  next_uid: function(cb){
-    client.incr(user_counter, cb);
-  },
-  next_gid: function(cb){
-    client.incr(game_counter, cb);
-  },
-  //doesn't work well?
-  list_users: function(cb){
-    client.keys("user_by_uid:*", function(err, keys) {
-      var done = keys.length;
-      var users = [];
-      for(k in keys) {
-        client.get(keys[k], function(err, user){
-          if (err) throw err;
-          users.push(JSON.parse(user));
-          done-=1;
-          if (done == 0) {
-            cb(null, users);
-          }
-        });
-      }
-    });
-  },
-  new_user: function(user, cb){
-    user = init_numeric_fields(user, ['wins', 'losses', 'ties']);
-    db.next_uid(function(err, uid){
-      user.id = uid;
-      client.mset('user_by_uid:' + uid, JSON.stringify(user), 'uid_by_email:' + user.email, uid, cb);
-    });
-  },
-  user_by_email_exists: function(email, cb){
-    client.exists('uid_by_email:'+email, cb);
-  },
-  user_by_email: function(email, cb){
-    client.get('uid_by_email:' + email, function(err, uid){
-      if(err) cb(err, uid);
-      else {
-        db.user_by_id(uid, cb);
-      }
-    });
-  },
-  user_by_id: function(uid, cb){
-    client.get('user_by_uid:' + uid, function(err, data){
-      cb(err, JSON.parse(data));
-    });
-  },
-  update_user: function(uid, user, cb){
-    client.set('user_by_uid:'+uid, JSON.stringify(user), cb);
-    //WARNING: assume no email change
-  },
-
-  //every new game is open
-  new_game: function(game, cb){
-    if(game.state === undefined || game.name === undefined){
-      if(typeof(cb) == "function") cb("Attempted to create game without name or state");
-      console.error("Attempted to create game without name or state")
-      console.trace();
+User.prototype = {
+  properties: ['id', 'email', 'password', 'wins', 'losses', 'ties', 'isAdmin'],
+  save: function(cb){
+    //new
+    var self = this;
+    if(this.id == undefined){
+      Users.next_uid(function(err, uid){
+        if(err) throw err;
+        console.log(uid);
+        self.id = uid;
+        client.mset('user_by_uid:' + uid, JSON.stringify(extract(self, self.properties)), 
+          'uid_by_email:' + self.email, uid, cb);
+      });
+    //existing 
     } else {
-      db.next_gid(function(err, gid) {
-        game.id = gid
-        client.sadd('all_games_state_' + game.state, gid);
-        client.mset('game_by_gid:' + gid, JSON.stringify(game), 'open_gid_by_name:' + game.name, gid, cb);
+      client.get('user_by_uid:'+this.id, function(err, old_user){
+        if(err) throw err;
+        var m = client.multi();
+        if(old_user.email != self.email){
+          m.del('uuid_by_email:'+old_user.email);
+          m.set('uuid_by_email:'+self.email, self.id);
+        }
+        m.set('user_by_uid:'+self.id, JSON.stringify(extract(self, self.properties)));
+        m.exec(cb);
       });
     }
   },
-  game_by_name: function(name, cb){
-    client.get('open_gid_by_name:' + name, function(err, gid){
-      if(err) cb(err, gid);
+  win:function(gid, cb){
+    this.wins.push(gid);
+    this.save(cb);
+  },
+  lose:function(gid, cb){
+    this.losses.push(gid);
+    this.save(cb);
+  },
+  tie:function(gid, cb){
+    this.ties.push(gid);
+    this.save(cb);
+  }
+}
+
+var Users = {
+  next_uid: function(cb){
+    client.incr('global:nextUserId', cb);
+  },
+  by_email_exists: function(email, cb){
+    client.exists('uid_by_email:'+email, cb);
+  },
+  by_email: function(email, cb){
+    client.get('uid_by_email:' + email, function(err, uid){
+      if(err) cb(err, uid);
       else {
-        db.game_by_id(gid, cb);
+        Users.by_id(uid, cb);
       }
     });
   },
-  game_by_id: function(gid, cb){
-    client.get('game_by_gid:' + gid, function(err, data){
-      cb(err, JSON.parse(data));
+  by_id: function(uid, cb){
+    client.get('user_by_uid:' + uid, function(err, data){
+      cb(err, data?new User(data):false);
     });
   },
-  games_by_ids: function(gids, cb){
+  //TODO: improve this?
+  list: function(cb){
+    client.keys("user_by_uid:*", function(err, keys) {
+      client.mget(keys, function(err, users){
+        for(i in users){
+          users[i] = new User(users[i]);
+        }
+        cb(err, users);
+      });
+    });
+  }
+}
+
+//game = {id, name, state, ???}
+//state: open, waiting1, waiting2, processing, archived
+//only open games are indexed by name!
+var Game = function(data){
+  extract(data, this.properties, this);
+}
+
+//TODO: eliminate need for properties list using getters and setters?
+Game.prototype = {
+  properties: ['id', 'name', 'state', 'start_state', 'grid_size', 'players'],
+  save: function(cb){
+    var self = this;
+    //new
+    if(this.id == undefined){
+      Games.next_gid(function(err, gid) {
+        self.id = gid;
+        var m = client.multi();
+        m.sadd('all_games_state_'+self.state, self.id);
+        if(self.state == 'open'){
+          m.set('open_gid_by_name:' + self.name, self.id);
+        }
+        m.set('game_by_gid:'+self.id, JSON.stringify(
+          extract(self, self.properties)));
+        m.exec(cb);
+      });
+    //update
+    } else {
+      Games.by_id(this.id, function(err, old_game){
+        var m = client.multi();
+        if(old_game.state != self.state) {
+          m.smove('all_games_state_'+old_game.state, 'all_games_state_'+self.state, self.id);
+        }
+        if(old_game.state != 'open' && self.state == 'open'){
+          m.set('open_gid_by_name:' + self.name, self.id);
+        } else if (old_game.state == 'open' && self.state != 'open') {
+          m.del('open_gid_by_name:' + self.name, self.id);
+        }
+        m.set('game_by_gid:'+self.id, JSON.stringify(extract(self, 
+          self.properties)));
+        m.exec(cb);
+      });
+      //WARNING: assume no game name change
+    }
+  },
+  del: function(cb){
+    var m = client.multi();
+    m.del('game_by_gid:'+this.id);
+    m.srem('all_games_state_'+this.state, this.id);
+    if(this.state == 'open'){
+      m.del('game_by_name:'+this.name);
+    };
+    m.exec(cb);
+  },
+}
+
+var Games = {
+  next_gid: function(cb){
+    client.incr('global:nextGameId', cb);
+  },
+  by_id: function(gid, cb){
+    client.get('game_by_gid:' + gid, function(err, data){
+      console.log(data);
+      cb(err, data?new Game(data):false);
+    });
+  },
+  by_name: function(name, cb){
+    client.get('open_gid_by_name:' + name, function(err, gid){
+      if(err) cb(err, gid);
+      else {
+        Games.by_id(gid, cb);
+      }
+    });
+  },
+  name_exists: function(name, cb){
+    client.exists('open_gid_by_name:'+name, cb);
+  },
+  by_ids: function(gids, cb){
     for (i in gids){
       gids[i] = 'game_by_gid:' + gids[i];
     }
     client.mget(gids, function(err, data){
       for(i in data){
-        data[i] = JSON.parse(data[i]);
+        data[i] = new Game(data[i]);
       }
       cb(err, data);
     });
   },
   all_gids_in_state: function(state, cb){
     client.smembers('all_games_state_'+state, cb);
-  },
-  game_state_change: function(gid, new_state, cb){
-    db.game_by_id(gid, function(err, game){
-      if(err) throw err;
-      if(new_state == 'archived'){
-        client.del('open_gid_by_name:' + game.name)
-      }
-      game.state = new_state;
-      client.multi()
-        .smove('all_games_state_'+game.state, 'all_games_state_'+new_state, gid)
-        .set('game_by_gid:'+gid, JSON.stringify(game))
-        .exec(cb);
-    });
-  },
-  delete_game: function(game, cb){
-    var m = client.multi();
-    m.del('game_by_gid:'+game.id);
-    m.srem('all_games_state_'+game.state, game.id);
-    if(game.state == 'open'){
-      m.del('game_by_name:'+game.name);
-    };
-    m.exec(cb);
-  },
-  update_game: function(gid, game, cb){
-    db.game_by_id(gid, function(err, old_game){
-      var m = client.multi();
-      if(old_game.state != game.state) {
-        m.smove('all_games_state_'+old_game.state, 'all_games_state_'+game.state, gid);
-      }
-      m.set('game_by_gid:'+gid, JSON.stringify(game));
-      m.exec(cb);
-    });
-    //WARNING: assume no game name change
   }
+}
+
+//NO CHANGING GAME NAMES
+db = {
+  client: client,
+  User: User,
+  Users: Users,
+  Game: Game,
+  Games: Games
 };
 
 module.exports = db;

@@ -38,7 +38,7 @@ module.exports = {
         // }
         // return promise;
         var promise = this.Promise();
-        db.user_by_email(email, function(err, user){
+        db.Users.by_email(email, function(err, user){
           if (err) return promise.fulfill([err]);
           if (user && verify(user, password)){
             promise.fulfill(user);
@@ -48,18 +48,14 @@ module.exports = {
         return promise;
       })
       .respondToLoginSucceed(function(res, user, data){
-        if(user){//check for success
-          var r = data.session.redirectTo;
-          delete data.session.redirectTo;
-          res.redirect(r || '/');
-        }
+        var r = data.session.redirectTo;
+        delete data.session.redirectTo;
+        res.redirect(r || '/');
       })
       .respondToRegistrationSucceed(function(res, user, data){
-        if(user){ //check for success
-          var r = data.session.redirectTo;
-          delete data.session.redirectTo;
-          res.redirect(r || '/');
-        }
+        var r = data.session.redirectTo;
+        delete data.session.redirectTo;
+        res.redirect(r || '/');
       })
       .getRegisterPath('/register') // Uri path to the registration page
       .postRegisterPath('/register') // The Uri path that your registration form POSTs to
@@ -88,7 +84,7 @@ module.exports = {
         if (e.length > 0){
           promise.fulfill(e);
         } else {
-          db.user_by_email_exists(newUserAttributes.email, function(err, exists){
+          db.Users.by_email_exists(newUserAttributes.email, function(err, exists){
             if (err) return promise.fulfill([err]);
             if (exists) {
               e.push("An account with this email already exists.");
@@ -123,7 +119,8 @@ module.exports = {
         // here; all other validations occur in the `validateRegistration` step documented above.
         var promise = this.Promise();
         newUserAttributes.password = hash(newUserAttributes.email, newUserAttributes.password);
-        db.new_user(newUserAttributes, function(err, user){
+        var user = new db.User(newUserAttributes);
+        user.save(function(err){
           if(err) return promise.fulfill([err]);
           promise.fulfill(user);
         });
@@ -132,7 +129,7 @@ module.exports = {
       
       everyauth.helpExpress(app, {userAlias:'user'});
       everyauth.everymodule.findUserById(function (userId, callback) {
-        db.user_by_id(userId, callback);
+        db.Users.by_id(userId, callback);
       });
   },
   login_check: function(req, res, next) {

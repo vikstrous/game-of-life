@@ -24,9 +24,9 @@ module.exports = function(app){
   });
 
   app.get('/join', login_check, function(req, res) {
-    db.all_gids_in_state('open', function(err, gids){
+    db.Games.all_gids_in_state('open', function(err, gids){
       if(err) throw err;
-      db.games_by_ids(gids, function(err, games){
+      db.Games.by_ids(gids, function(err, games){
         render(req, res, 'join', {games: games});
       });
     });
@@ -37,18 +37,18 @@ module.exports = function(app){
   });
 
   app.get('/admin', admin_only, function(req, res) {
-    db.all_gids_in_state('open', function(err, gids){
+    db.Games.all_gids_in_state('open', function(err, gids){
       if(err) throw err;
-      db.games_by_ids(gids, function(err, games){
+      db.Games.by_ids(gids, function(err, games){
         render(req, res, 'admin', {games: games});
       });
     });
   });
 
   app.post('/admin/games/delete', admin_only, function(req, res) {
-    db.game_by_id(req.body.gid, function(err, game){
+    db.Games.by_id(req.body.gid, function(err, game){
       if(err) throw err;
-      db.delete_game(game, function(){
+      game.del(function(){
         res.redirect('back');
       });
     });
@@ -63,7 +63,7 @@ module.exports = function(app){
   });
 
   app.get('/profile/list', admin_only, function(req, res) {
-    db.list_users(function(err, users) {
+    db.Users.list(function(err, users) {
       if(err) throw err;
       render(req, res, 'profile_list', {profiles: users});
     });
@@ -74,7 +74,7 @@ module.exports = function(app){
   });
 
   app.get('/profile/:id', login_check, function(req, res) {
-    db.user_by_id(req.params.id, function(err, user) {
+    db.Users.by_id(req.params.id, function(err, user) {
       if (err) throw err;
       if (user) {
         render(req, res, 'profile', {profile: user});
@@ -85,7 +85,7 @@ module.exports = function(app){
   });
 
   app.get('/profile/:id/edit', login_check, function(req, res) {
-    db.user_by_id(req.params.id, function(err, user) {
+    db.Users.by_id(req.params.id, function(err, user) {
       if (err) throw err;
       if (user) {
         if(req.user.id == user.id || is_admin(req.user)) {
@@ -114,11 +114,19 @@ module.exports = function(app){
       err.push("Maximum size: 200");
     }
     if(err.length == 0){
-      db.game_by_name(req.body.name, function(err, game){
+      //TODO: validate name (no weird characters! alphanum)
+      db.Games.name_exists(req.body.name, function(err, exists){
         if(err) throw err;
-        if(!game){
-          db.new_game({name:req.body.name, state:'open', players:[req.user.id], grid_size:{x:req.body.x,y:req.body.y}, start_state:[null, null]});
-          res.redirect('/game/'+req.body.name);
+        if(!exists){
+          var game = new db.Game({name:req.body.name, 
+            state:'open', 
+            players:[req.user.id], 
+            grid_size:{x:req.body.x,y:req.body.y}, 
+            start_state:[null, null]});
+          game.save(function(err){
+            if(err) throw err;
+            res.redirect('/game/'+req.body.name);
+          });
         } else {
           render(req, res, 'create', {errors:['Game name already taken.']});
         }
@@ -129,7 +137,8 @@ module.exports = function(app){
   });
 
   app.get('/game/:name', login_check, function(req, res) {
-    db.game_by_name(req.params.name, function(err, game) {
+    db.Games.by_name(req.params.name, function(err, game) {
+      if(err) throw err;
       if(game) {
         //if you are player 1, do nothing
         if (game.players[0] === req.user.id){
@@ -141,7 +150,7 @@ module.exports = function(app){
         } else if (game.players[1] === undefined){ //if there isn't already a second player, join
           game.players[1] = req.user.id;
           game.state = "waiting1";
-          db.update_game(game.id, game, function(err){
+          game.save(function(err){
             if(err) throw err;
             render(req, res, 'game', {game:game});
           });
