@@ -9,11 +9,11 @@ onconnect : function (socket) {
 	
 	socket.on('page_ready', function(data) {
 		var userId = socket.handshake.session.auth.userId;
-		db.user_by_id(userId, function(err, user){
+		db.Users.by_id(socket.handshake.session.auth.userId, function(err, user){
 			console.log(user);
 		});
 		socket.gid = data;
-		db.game_by_id(socket.gid, function(err, game) {
+		db.Games.by_id(socket.gid, function(err, game) {
 			if(game.players[1] == undefined) {
 				socket.emit('waiting_for_player');
 			} else {
@@ -28,9 +28,12 @@ onconnect : function (socket) {
 	
 	socket.on('grid_play', function(data) {
 		var gid = socket.gid;
-		db.game_by_id(gid, function(err, game) {
+		db.Games.by_id(gid, function(err, game) {
 			var userId = socket.handshake.session.auth.userId;
-			console.assert((userId == game.players[0] || userId == game.players[1]), "The player IDs of game " + game.id + " are wrong: " + game.players);
+			console.assert((userId == game.players[0] || 
+				userId == game.players[1]), 
+				"The player IDs of game " + game.id + 
+				" are wrong: " + game.players);
 			if(game.players[0] == userId) {
 				game.start_state[0] = data.points;
 			} else {
@@ -38,13 +41,13 @@ onconnect : function (socket) {
 			}
 			if(game.state == 'waiting1') {
 				game.state = 'waiting2';
-				db.update_game(gid, game, function(err){
+				game.save(function(err){
 					if(err) throw err;
 					socket.emit('waiting_to_start');
 				});
 			} else {
-				db.state = 'processing';
-				db.update_game(gid, game, function(err){
+				game.state = 'processing';
+				game.save(function(err){
 					if(err) throw err;
 					var grid = new Array();
 					for(var i = 0; i < game.grid_size.x; i++) {
@@ -74,28 +77,27 @@ onconnect : function (socket) {
 						grid = game_logic.update(grid, game.grid_size);
 						winner = game_logic.winner(iteration, game_logic.grid_pop(grid, game.grid_size));
 					}
-					//TODO: archive the game record and update player records with wins/losses.
-					db.game_state_change(gid, 'archived', function(err){
+					game.state = 'archived';
+					game.save(function(err){
 						if(err) throw err;
-						db.user_by_id(game.players[0], function(err, player1){
+						db.Users.by_id(game.players[0], function(err, player1){
 							if(winner == 1){
-								player1.wins += 1;
+								player1.win(game.id);
 							} else if (winner == 2) {
-								player1.losses += 1;
+								player1.lose(game.id);
 							} else if (winner == 0) {
-								player1.ties += 1;
+								player1.tie(game.id);
 							}
-							db.update_user(player1.id, player1);
 						});
-						db.user_by_id(game.players[1], function(err, player2){
+						db.Users.by_id(game.players[1], function(err, player2){
+
 							if(winner == 1){
-								player2.losses += 1;
+								player2.lose(game.id);
 							} else if (winner == 2) {
-								player2.wins += 1;
+								player2.win(game.id);
 							} else if (winner == 0) {
-								player2.ties += 1;
+								player2.tie(game.id);
 							}
-							db.update_user(player2.id, player2);
 						});
 					});
 				});
