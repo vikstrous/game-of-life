@@ -3,10 +3,13 @@ h2
   = game.name
 .hidden#gid
   = game.id
+.hidden#gsize
+  = JSON.stringify(game.grid_size)
 table#display_table
   tr
     td(rowspan="2")
-      canvas#game_of_life(width="400px", height="400px")
+      canvas#game_of_life(width=(game.grid_size.x * 8 + 1) + "px", height=(game.grid_size.y * 8 + 1) + "px")
+        = "You browser does not support canvases. You cannot play this game."
     td
       div#template_content.scroll-pane
 br

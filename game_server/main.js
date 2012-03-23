@@ -8,7 +8,8 @@ module.exports = {
 onconnect : function (socket) {
 	
 	socket.on('page_ready', function(data) {
-		db.user_by_id(socket.handshake.session.auth.userId, function(err, user){
+		var userId = socket.handshake.session.auth.userId;
+		db.user_by_id(userId, function(err, user){
 			console.log(user);
 		});
 		socket.gid = data;

@@ -14,6 +14,9 @@ var pop;
 var current_template = {name: 'default', tiles: [[1]], type: 'default'};
 
 $(document).ready(function() {
+	grid_size = JSON.parse($('#gsize').text());
+//	$('#game_of_life').attr('width', grid_size.x * 8 + 1)
+//	$('#game_of_life').attr('height', grid_size.y * 8 + 1)
 	init_template_pane();
 	document.getElementById("game_of_life").addEventListener('click', clicked, false);
 	$("#play_pause").data("value", "play");
@@ -51,7 +54,6 @@ socket.on('page_ready_response', function(data) {
 	} else {
 		$('#header').html('Battle! (Player 2)');
 	}	
-	grid_size = data.grid_size;
 	grid = new Array();
 	for(var i = 0; i < grid_size.x; i++) {
 		grid[i] = new Array();
@@ -110,31 +112,31 @@ function repaint(pop) {
 	
 	context.clearRect(0, 0, canvas.width, canvas.height);
 	
-	var screen_width = document.getElementById("game_of_life").width
-	var screen_height = document.getElementById("game_of_life").height
+	var screen_width = document.getElementById("game_of_life").width - 1;
+	var screen_height = document.getElementById("game_of_life").height - 1;
 	var line_separation = {
 		x : screen_width / grid_size.x,
 		y : screen_height / grid_size.y
 	};
 	for(var i = i_start; i <= i_stop; i++) {
-		context.moveTo(i*line_separation.x, 0);
-		context.lineTo(i*line_separation.x, screen_height);
+		context.moveTo(i*line_separation.x + 0.5, 0.5);
+		context.lineTo(i*line_separation.x + 0.5, screen_height + 0.5);
 	}
 	for(var i = 0; i <= grid_size.y; i++) {
-		context.moveTo(i_start*line_separation.x, i*line_separation.y);
-		context.lineTo(i_stop*line_separation.x, i*line_separation.y);
+		context.moveTo(i_start*line_separation.x + 0.5, i*line_separation.y + 0.5);
+		context.lineTo(i_stop*line_separation.x + 0.5, i*line_separation.y + 0.5);
 	}
 	
 	context.fillStyle = "";
 	context.strokeStyle = "#333333";
-	context.lineWidth = 2;
+	context.lineWidth = 1;
 	context.stroke();
 	
 	for(var i = 0; i < grid_size.x; i++) {
 		for(var j = 0; j < grid_size.y; j++) {
 			if(grid[i][j] > 0) {
 				context.beginPath();
-				context.rect(i*line_separation.x, j*line_separation.y, line_separation.x, line_separation.y);
+				context.rect(i*line_separation.x + 0.5, j*line_separation.y + 0.5, line_separation.x, line_separation.y);
 				context.fillStyle = grid_colors[grid[i][j] - 1];
 				context.strokeStyle = "";
 				context.fill();
@@ -165,8 +167,9 @@ function clicked(e) {
 			y -= offset.top;
 		}
 		var screen_width = document.getElementById("game_of_life").width;
+		var screen_height = document.getElementById("game_of_life").height;
 		var p_x = Math.floor(x/screen_width*grid_size.x);
-		var p_y = Math.floor(y/screen_width*grid_size.y);
+		var p_y = Math.floor(y/screen_height*grid_size.y);
 
 		var tiles = current_template.tiles;
 		var bounds;
