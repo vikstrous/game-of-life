@@ -10,5 +10,12 @@
     "everyauth": "*",
     "redis": "*",
     "connect-redis": "*"
+  },
+  "subdomain": "gofl",
+  "scripts": {
+    "start": "server.js"
+  },
+  "engines": {
+    "node": "0.6.x"
   }
 }
