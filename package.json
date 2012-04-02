@@ -1,5 +1,5 @@
 {
-  "name": "Node-room",
+  "name": "gofl",
   "version": "0.0.1",
   "dependencies": {
     "express": "*",
