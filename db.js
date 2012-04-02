@@ -1,4 +1,3 @@
-//TODO: Fix use of "this"!!!
 var redis = require("redis");
 var client;
 
