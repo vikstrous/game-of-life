@@ -4,24 +4,32 @@ var redis = require("redis"),
 
 var moore = [[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]];
 
+var sockets = new Array();
+
 module.exports = {
 onconnect : function (socket) {
 	
-	socket.on('page_ready', function(data) {
+	socket.on('page_ready', function(game_id) {
 		var userId = socket.handshake.session.auth.userId;
-		db.Users.by_id(socket.handshake.session.auth.userId, function(err, user){
+		db.Users.by_id(userId, function(err, user){
 			console.log(user);
 		});
-		socket.gid = data;
-		db.Games.by_id(socket.gid, function(err, game) {
+		db.Games.by_id(game_id, function(err, game) {
+			socket_id = game_id + ';' + userId;
+			sockets[socket_id] = socket;
+			console.log(sockets);
 			if(game.players[1] == undefined) {
+				game.sockets[0] = socket_id;
 				socket.emit('waiting_for_player');
+				game.save(function() {});
 			} else {
+				game.sockets[1] = socket_id;
 				var data = {
 					grid_size : game.grid_size,
 				}
-				socket.emit('page_ready_response', data);
-				socket.broadcast.emit('page_ready_response', data);
+				sockets[game.sockets[0]].emit('page_ready_response', data);
+				sockets[game.sockets[1]].emit('page_ready_response', data);
+				game.save(function() {});
 			}
 		});
 	});
@@ -68,8 +76,8 @@ onconnect : function (socket) {
 							grid[point.x][point.y] = 2;
 						}
 					}
-					socket.broadcast.emit('grid_played', grid);
-					socket.emit('grid_played', grid);
+					sockets[game.sockets[0]].emit('grid_played', grid);
+					sockets[game.sockets[1]].emit('grid_played', grid);
 					var iteration = 1;
 					var winner = -1;
 					while(winner < 0) {
@@ -78,6 +86,9 @@ onconnect : function (socket) {
 						winner = game_logic.winner(iteration, game_logic.grid_pop(grid, game.grid_size));
 					}
 					game.state = 'archived';
+					sockets[game.sockets[0]] = null;
+					sockets[game.sockets[1]] = null;
+					game.sockets = [null,null];
 					game.save(function(err){
 						if(err) throw err;
 						db.Users.by_id(game.players[0], function(err, player1){

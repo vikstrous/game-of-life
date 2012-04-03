@@ -15,8 +15,6 @@ var current_template = {name: 'default', tiles: [[1]], type: 'default'};
 
 $(document).ready(function() {
 	grid_size = JSON.parse($('#gsize').text());
-//	$('#game_of_life').attr('width', grid_size.x * 8 + 1)
-//	$('#game_of_life').attr('height', grid_size.y * 8 + 1)
 	init_template_pane();
 	document.getElementById("game_of_life").addEventListener('click', clicked, false);
 	$("#play_pause").data("value", "play");
@@ -37,7 +35,7 @@ $(document).ready(function() {
 	$('[id^="template_pick_"]').on('click', function() {
 		picked_template($(this))
 	});
-	socket.emit('page_ready',$("#gid").html());
+	socket.emit('page_ready', $('#gid').text());
 });
 socket.on('waiting_for_player', function() {
 	$('#header').html('Waiting for player to join...');

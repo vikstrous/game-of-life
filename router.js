@@ -122,7 +122,8 @@ module.exports = function(app){
             state:'open', 
             players:[req.user.id], 
             grid_size:{x:req.body.x,y:req.body.y}, 
-            start_state:[null, null]});
+            start_state:[null, null],
+			sockets:[null,null]});
           game.save(function(err){
             if(err) throw err;
             res.redirect('/game/'+req.body.name);
