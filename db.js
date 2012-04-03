@@ -1,13 +1,12 @@
-//TODO: Fix use of "this"!!!
 var redis = require("redis");
 var client;
 
-if (process.env.NODE_REDIS == 'remote') {
-  client = redis.createClient(2772, "50.30.35.9");
-  client.auth("e8d00846616c5645c7b093c584b4b34b");
+if (process.env.NODE_REDIS == 'local') {
+  client = redis.createClient();
 }
 else {
-  client = redis.createClient();
+  client = redis.createClient(2772, "50.30.35.9");
+  client.auth("e8d00846616c5645c7b093c584b4b34b");
 }
 
 client.on("error", function (err) {

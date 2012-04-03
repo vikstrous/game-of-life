@@ -1,6 +1,6 @@
 {
-  "name": "Node-room",
-  "version": "0.0.1",
+  "name": "gofl",
+  "version": "0.0.1-1",
   "dependencies": {
     "express": "*",
     "stylus": "*",
@@ -10,5 +10,12 @@
     "everyauth": "*",
     "redis": "*",
     "connect-redis": "*"
+  },
+  "subdomain": "gofl",
+  "scripts": {
+    "start": "server.js"
+  },
+  "engines": {
+    "node": "0.6.x"
   }
 }

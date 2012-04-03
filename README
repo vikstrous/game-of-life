@@ -13,6 +13,10 @@ TODO:
 - quitting a game?
 - time limit to make a move
 - ajax all the things
-- benchmark browsers
-- replay games
+- benchmark browsers -> give them the option to play bigger game
+- webgl shaders!
 - ability to change scripts/css being loaded inside of the view
+- replay games
+- matchmaking
+- multiple games at once
+- smoother layout
