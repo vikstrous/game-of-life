@@ -129,10 +129,8 @@ init : function() {
 }
 }
 
-function modToRange(val, lower, upper) {
-	while(val < lower) { val += (upper - lower); }
-	while(val >= upper) { val -= (upper - lower); }
-	return val;
+function mod(val, upper) {
+	return ((val % upper) + upper) % upper;
 }
 
 function updateGrid() {
@@ -145,8 +143,8 @@ function updateGrid() {
 			sum[1] = 0;
 			sum[2] = 0;
 			for(var co = 0; co < moore.length; co++) {
-				var g_x = modToRange(i + moore[co][0], 0, grid_size.x);
-				var g_y = modToRange(j + moore[co][1], 0, grid_size.y);
+				var g_x = mod(i + moore[co][0], grid_size.x);
+				var g_y = mod(j + moore[co][1], grid_size.y);
 				if(grid[g_x][g_y] > 0) {
 					sum[0]++;
 					sum[grid[g_x][g_y]]++;

@@ -11,7 +11,7 @@ if test -z $redis_found
 then
 redis-server 2>/dev/null > /dev/null &
 else
-echo "node inspector already running"
+echo "redis server already running"
 fi
 
 NODE_ENV=development NODE_PORT=3000 NODE_REDIS=local nodemon --debug server.js
