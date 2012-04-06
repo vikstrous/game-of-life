@@ -23,11 +23,16 @@ module.exports = function(app){
     render(req, res, 'index');
   });
 
-  app.get('/join', login_check, function(req, res) {
+  app.get('/join', function(req, res) {
     db.Games.all_gids_in_state('open', function(err, gids){
       if(err) throw err;
       db.Games.by_ids(gids, function(err, games){
-        render(req, res, 'join', {games: games});
+        var g_list = [];
+        for (g in games){
+          var game = games[g];
+          g_list.push({name:game.name, grid_size:game.grid_size}); //TODO: get the (user)name of the creator of the game in here
+        }
+        res.json(g_list);
       });
     });
   });
@@ -52,10 +57,6 @@ module.exports = function(app){
         res.redirect('back');
       });
     });
-  });
-
-  app.get('/create', login_check, function(req, res) {
-    render(req, res, 'create');
   });
 
   app.get('/profile', login_check, function(req, res) {
@@ -123,17 +124,17 @@ module.exports = function(app){
             players:[req.user.id], 
             grid_size:{x:req.body.x,y:req.body.y}, 
             start_state:[null, null],
-			sockets:[null,null]});
+            sockets:[null,null]});
           game.save(function(err){
             if(err) throw err;
-            res.redirect('/game/'+req.body.name);
+            res.json({name:req.body.name});
           });
         } else {
-          render(req, res, 'create', {errors:['Game name already taken.']});
+          res.json({errors:['Game name already taken.']});
         }
       });
     } else {
-      render(req, res, 'create', {errors:err});
+      res.json({errors:err});
     }
   });
 

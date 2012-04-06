@@ -1,9 +1,6 @@
-h1 I can haz gaem?
-- if ('undefined' !== typeof errors && errors.length)
-  ul#errors
-    - each error in errors
-      li.error= error
-form(action="/create", method="POST")
+h1 Create a game!
+#create-error.error
+form#create-form(action="/create", method="POST")
   label Game name:
     br
     input(name="name")

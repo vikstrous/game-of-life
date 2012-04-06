@@ -16,11 +16,12 @@ var sessionStore = new RedisStore({client:db.client});
 
 app.configure(function(){
   app.set('view engine', 'jade');
-  app.use(express.bodyParser());
   app.use(express.cookieParser());
   app.use(express.session({store: sessionStore
       , secret: 'tj54u49tpowe548tuwp94t58u3w094ity897y8y'
       , key: 'express.sid'}));
+  app.use(express.bodyParser());
+  //app.use(express.csrf()); //TODO: USE THIS!!
   app.use(auth.middleware());
   app.use(express.router(require(__dirname + '/router.js')));
   app.use(stylus.middleware(

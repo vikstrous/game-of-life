@@ -1,4 +1,15 @@
+#app
+  #create
+  #join
 ul
 - if(!everyauth.loggedIn)
-  != partial('login')
-  != partial('register')
+  script#login-tmpl(type="template")
+    != partial('login')
+  script#register-tmpl(type="template")
+    != partial('register')
+script#join-tmpl(type="template")
+  != partial('join')
+script#create-tmpl(type="template")
+  != partial('create')
+
+script(src="/js/app.js")

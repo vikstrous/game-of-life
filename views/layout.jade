@@ -5,8 +5,11 @@ html
     link(rel="stylesheet", type="text/css", href="/css/reset.css")
     link(rel="stylesheet", type="text/css", href="/css/style.css")
     script(src="/js/lib/jquery.min.js")
+    script(src="/js/lib/mustache.js")
     script(src="/socket.io/socket.io.js")
   body
+    #overlay
+      img(src="/images/load48.gif")
     .main
       - // this is to make padding work without messing up 100% min height
       .main-inner
@@ -14,10 +17,6 @@ html
           a(href='/') The Game Of Life and Death
         ul.nav
           - if(everyauth.loggedIn)
-            li
-              a(href="/join") Join a game
-            li
-              a(href="/create") Create a game
             li.right
               a(href="/logout") Logout
           - else

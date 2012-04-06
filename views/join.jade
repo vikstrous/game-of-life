@@ -1,6 +1,10 @@
 h1 Join a game!
-ul
-- if ('undefined' !== typeof games)
-  - for g in games
-    li
-      a(href="/game/"+g.name)= g.name
+label.show-bots
+  p Show bots: 
+    input#show_bots(type="checkbox", name="bots")
+ul.games
+  | {{#games}}
+  li.game
+    a(href="/game/{{name}}") {{name}}
+    p Grid size: {{grid_size.x}} x {{grid_size.y}}
+  | {{/games}}
