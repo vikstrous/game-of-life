@@ -1,4 +1,4 @@
-var game_logic = require(__dirname + '/../shared/shared.js');
+var game_logic = require(__dirname + '/../public/js/shared/shared.js');
 var redis = require("redis"),
     db = require(__dirname + '/../db.js');
 
