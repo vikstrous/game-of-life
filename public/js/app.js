@@ -16,13 +16,23 @@ function post(){
 }
 function ajax(method, args){
   page_is_loading(true);
-  var cb = args.pop();
-  args.push(function(){
-    cb.apply(this, arguments);
+  var cb;
+  if(typeof args[args.length-1] == 'function'){
+    cb = args.pop();
+  }
+  args.push(function(data){
+    if(data.require_login) {
+      console.log("you have to log in!");
+    } else if(typeof cb == 'function') {
+      cb.apply(this, arguments);
+    }
     page_is_loading(false);
   });
   //TODO: add error handlers and use the .ajax call
-  $[method].apply(window, args);
+  $[method].apply(window, args).error(function(){
+    console.log('ajax error');
+    console.log(arguments);
+  });
 }
 
 $(function(){
@@ -40,9 +50,10 @@ $(function(){
   $('#create-form').submit(function(e){
     e.preventDefault();
     post('create', $(this).serialize(), function(data){
+      console.log(arguments);
       if(data.errors) {
         $('#create-error').text(data.errors[0]).show();
-      } else {
+      } else if (data.status = 'ok') {
         $('#create-error').hide();
         document.location = '/game/'+data.name;
       }

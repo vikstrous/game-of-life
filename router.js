@@ -1,5 +1,6 @@
 var auth = require(__dirname + '/auth.js')
   , login_check = auth.login_check
+  , ajax_login_check = auth.ajax_login_check
   , admin_only = auth.admin_only
   , is_admin = auth.is_admin
   , db = require(__dirname + '/db.js');
@@ -100,7 +101,7 @@ module.exports = function(app){
     });
   });
 
-  app.post('/create', login_check, function(req, res) {
+  app.post('/create', ajax_login_check, function(req, res) {
     var err = [];
     if(!req.body.x || !req.body.y){
       err.push("Please enter dimensions for the game.");
@@ -127,7 +128,7 @@ module.exports = function(app){
             sockets:[null,null]});
           game.save(function(err){
             if(err) throw err;
-            res.json({name:req.body.name});
+            res.json({name:req.body.name, status:'ok'});
           });
         } else {
           res.json({errors:['Game name already taken.']});
