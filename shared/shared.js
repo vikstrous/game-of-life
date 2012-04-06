@@ -11,8 +11,8 @@ var game_logic = {
 				sum[1] = 0;
 				sum[2] = 0;
 				for(var co = 0; co < moore.length; co++) {
-					var g_x = game_logic.modToRange(i + moore[co][0], 0, grid_size.x);
-					var g_y = game_logic.modToRange(j + moore[co][1], 0, grid_size.y);
+					var g_x = game_logic.mod(i + moore[co][0], grid_size.x);
+					var g_y = game_logic.mod(j + moore[co][1], grid_size.y);
 					if(grid[g_x][g_y] > 0) {
 						sum[0]++;
 						sum[grid[g_x][g_y]]++;
@@ -35,10 +35,9 @@ var game_logic = {
 		}
 		return newGrid;
 	},
-	modToRange: function(val, lower, upper) {
-		while(val < lower) { val+= (upper - lower); }
-		while(val >= upper) { val -= (upper - lower); }
-		return val;
+	mod: function(val, upper) {
+		upper = Number(upper);
+		return ((val % upper) +upper) % upper;
 	},
 	grid_pop: function(grid, grid_size) {
 		var pop1 = 0;

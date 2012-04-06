@@ -10,14 +10,15 @@ module.exports = {
 onconnect : function (socket) {
 	
 	socket.on('page_ready', function(game_id) {
+		socket.gid = game_id;
 		var userId = socket.handshake.session.auth.userId;
 		db.Users.by_id(userId, function(err, user){
+			//TODO: verify that this user is allowed to join this game
 			console.log(user);
 		});
 		db.Games.by_id(game_id, function(err, game) {
 			socket_id = game_id + ';' + userId;
 			sockets[socket_id] = socket;
-			console.log(sockets);
 			if(game.players[1] == undefined) {
 				game.sockets[0] = socket_id;
 				socket.emit('waiting_for_player');
@@ -27,9 +28,11 @@ onconnect : function (socket) {
 				var data = {
 					grid_size : game.grid_size,
 				}
-				sockets[game.sockets[0]].emit('page_ready_response', data);
-				sockets[game.sockets[1]].emit('page_ready_response', data);
-				game.save(function() {});
+				game.save(function(err) {
+					if(err) throw err;
+					sockets[game.sockets[0]].emit('page_ready_response', data);
+					sockets[game.sockets[1]].emit('page_ready_response', data);
+				});
 			}
 		});
 	});
@@ -37,6 +40,8 @@ onconnect : function (socket) {
 	socket.on('grid_play', function(data) {
 		var gid = socket.gid;
 		db.Games.by_id(gid, function(err, game) {
+			if(err) throw err;
+			if(!game) throw "no game";
 			var userId = socket.handshake.session.auth.userId;
 			console.assert((userId == game.players[0] || 
 				userId == game.players[1]), 

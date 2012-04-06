@@ -191,7 +191,6 @@ var Games = {
   },
   by_id: function(gid, cb){
     client.get('game_by_gid:' + gid, function(err, data){
-      console.log(data);
       cb(err, data?new Game(data):false);
     });
   },

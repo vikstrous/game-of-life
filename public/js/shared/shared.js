@@ -36,6 +36,7 @@ var game_logic = {
 		return newGrid;
 	},
 	mod: function(val, upper) {
+		upper = Number(upper);
 		return ((val % upper) +upper) % upper;
 	},
 	grid_pop: function(grid, grid_size) {
