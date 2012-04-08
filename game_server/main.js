@@ -219,7 +219,7 @@ onconnect : function (socket) {
     function quit() {
         //check if there is a game in an unfinished state left behind and if there is, kill it
         //TODO: consider using a timeout for this so they can come back quickly
-        if (socket.handshake)
+        if (socket.handshake && socket.handshake.session.auth)
             var userId = socket.handshake.session.auth.userId;
         var gid = socket.gid;
         if (userId && gid){
