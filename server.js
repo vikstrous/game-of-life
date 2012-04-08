@@ -8,7 +8,6 @@ var express = require('express')
   , game_server = require(__dirname + '/game_server/main.js')
   , auth = require(__dirname + '/auth.js');
   
-game_server.init();
 var app = express.createServer();
 auth.init(app);
 
@@ -65,4 +64,5 @@ sio.set('authorization', function (data, accept) {
     }
 });
 
+game_server.init(sio);
 sio.sockets.on('connection', game_server.onconnect);

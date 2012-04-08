@@ -33,6 +33,9 @@ body {
 .game a {
   font-size: 2em;
 }
+a {
+  cursor: pointer;
+}
 .error {
   background-color: #f99;
   background-image: -webkit-repeating-linear-gradient(135deg, transparent, transparent 35px, rgba(255,255,255,0.50) 35px, rgba(255,255,255,0.50) 70px);

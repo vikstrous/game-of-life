@@ -541,6 +541,12 @@
     return Mustache.render($('#'+template+'-tmpl').html(), view, partials);
   };
 
+  $.fn.mustachify = function (template, view, partials) {
+    return $(this).map(function (i, elm) {
+      return $(elm).html($.mustache(template, view, partials));
+    });
+  };
+
   $.fn.mustache = function (view, partials) {
     return $(this).map(function (i, elm) {
       var template = $(elm).html().trim();

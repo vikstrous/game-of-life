@@ -1,14 +1,10 @@
 h1#header Battle
 h2
-  = game.name
-.hidden#gid
-  = game.id
-.hidden#gsize
-  = JSON.stringify(game.grid_size)
+  {{name}}
 table#display_table
   tr
     td(rowspan="2")
-      canvas#game_of_life(width=(game.grid_size.x * 8 + 1) + "px", height=(game.grid_size.y * 8 + 1) + "px")
+      canvas#game_of_life(width="{{width}}px", height="{{height}}px")
         = "You browser does not support canvases. You cannot play this game."
     td
       div#template_content.scroll-pane
@@ -36,11 +32,6 @@ div#info_display(style="display: none;")
         = "..."
 br
 button#play_pause play
-script(src="/js/library.js")
-script(src="/js/game.js")
-script(src="/js/shared/shared.js")
-script(src="/js/lib/jquery.min.js")
-script(src="/js/lib/jquery.mousewheel.js")
-script(src="/js/lib/jquery.jscrollpane.min.js")
-script(src="/js/lib/mwheelIntent.js")
-link(type="text/css", href="/css/jquery.jscrollpane.css", rel="stylesheet", media="all")
+br
+br
+button#back_to_menu quit

@@ -9,15 +9,20 @@ Notes:
 - the server will now autorestart on changes
 - forgot mobile for now - it's a lot of effort and computation is slow
 
-TODO:
-- quitting a game?
+TODO (viktor):
+- go from ajax to full sockets!!!
+- ajax all the other things - profiles, etc.
 - time limit to make a move
-- ajax all the things
-- benchmark browsers -> give them the option to play bigger game
-- webgl shaders!
-- ability to change scripts/css being loaded inside of the view
 - replay games
 - matchmaking
-- multiple games at once
-- smoother layout
 - rematch
+- smoother layout
+- benchmark browsers -> give them the option to play bigger game
+- webgl shaders!
+- preloading system fun stuff?
+
+TODO (greg):
+- make rotation of pieces
+- make the size of the pieces selector make sense?
+- scale pieces down to fit them in the menu
+- pregenerate .png images for the pieces (in a sprite sheet? on another server?)

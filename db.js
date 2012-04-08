@@ -75,8 +75,8 @@ User.prototype = {
         if(err) throw err;
         var m = client.multi();
         if(old_user.email != self.email){
-          m.del('uuid_by_email:'+old_user.email);
-          m.set('uuid_by_email:'+self.email, self.id);
+          m.del('uid_by_email:'+old_user.email);
+          m.set('uid_by_email:'+self.email, self.id);
         }
         m.set('user_by_uid:'+self.id, JSON.stringify(extract(self, self.properties)));
         m.exec(cb);
@@ -130,7 +130,6 @@ var Users = {
   }
 }
 
-//game = {id, name, state, ???}
 //state: open, waiting1, waiting2, processing, archived
 //only open games are indexed by name!
 var Game = function(data){
@@ -179,7 +178,7 @@ Game.prototype = {
     m.del('game_by_gid:'+this.id);
     m.srem('all_games_state_'+this.state, this.id);
     if(this.state == 'open'){
-      m.del('game_by_name:'+this.name);
+      m.del('open_gid_by_name:'+this.name);
     };
     m.exec(cb);
   },

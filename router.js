@@ -139,23 +139,20 @@ module.exports = function(app){
     }
   });
 
-  app.get('/game/:name', login_check, function(req, res) {
+  app.get('/game/:name', ajax_login_check, function(req, res) {
     db.Games.by_name(req.params.name, function(err, game) {
       if(err) throw err;
       if(game) {
-        //if you are player 1, do nothing
-        if (game.players[0] === req.user.id){
-          render(req, res, 'game', {game: game});
-        //if you are player 2, do nothing
-        } else if (game.players[1] === req.user.id){
-          render(req, res, 'game', {game: game});
+        //if you are player 1 or player 2, do nothing
+        if (game.players[0] === req.user.id || game.players[1] === req.user.id){
+          res.json({game: {id: game.id, name: game.name, width: Number(game.grid_size.x) * 8 + 1, height: Number(game.grid_size.y) * 8 + 1, grid_size: game.grid_size}});
         //if you are joining, join
         } else if (game.players[1] === undefined){ //if there isn't already a second player, join
           game.players[1] = req.user.id;
           game.state = "waiting1";
           game.save(function(err){
             if(err) throw err;
-            render(req, res, 'game', {game:game});
+            res.json({game: {id: game.id, name: game.name, width: Number(game.grid_size.x) * 8 + 1, height: Number(game.grid_size.y) * 8 + 1, grid_size: game.grid_size}});
           });
         } else {
           res.redirect('/');

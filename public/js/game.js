@@ -6,15 +6,16 @@ var grid;
 var grid_size;
 var iteration = 1;
 
-var socket = io.connect();
 var player1 = false;
 var playing = false;
 var started = false;
 var pop;
 var current_template = {name: 'default', tiles: [[1]], type: 'default'};
+var current_gid;
 
-$(document).ready(function() {
-	grid_size = JSON.parse($('#gsize').text());
+function join_game(data){
+	grid_size = data.grid_size;
+	current_gid = data.id;
 	init_template_pane();
 	document.getElementById("game_of_life").addEventListener('click', clicked, false);
 	$("#play_pause").data("value", "play");
@@ -35,8 +36,8 @@ $(document).ready(function() {
 	$('[id^="template_pick_"]').on('click', function() {
 		picked_template($(this))
 	});
-	socket.emit('page_ready', $('#gid').text());
-});
+	socket.emit('page_ready', current_gid);
+}
 socket.on('waiting_for_player', function() {
 	$('#header').html('Waiting for player to join...');
 	player1 = true;
@@ -44,6 +45,9 @@ socket.on('waiting_for_player', function() {
 socket.on('waiting_to_start', function() {
 	$('#play_pause').html('Waiting...');
 	playing = true;
+});
+socket.on('other_player_disconnected', function() {
+	$('#header').html('Other player disconnected.');
 });
 socket.on('page_ready_response', function(data) {
 	started = true;
