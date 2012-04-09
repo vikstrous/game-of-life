@@ -1,6 +1,6 @@
-var everyauth = require('everyauth')
-  , db = require(__dirname + '/db.js')
-  , crypto = require('crypto');
+var everyauth = require('everyauth'),
+    db = require(__dirname + '/db.js'),
+    crypto = require('crypto');
 
 function hash(email, pass) {
   return crypto.createHmac('sha512', email).update(pass).digest('hex');
@@ -10,7 +10,7 @@ function verify(user, pass) {
 }
 
 module.exports = {
-  middleware: function() { return everyauth.middleware() },
+  middleware: function() { return everyauth.middleware(); },
   init: function(app){
     everyauth.password
       .loginWith('email')
@@ -22,7 +22,7 @@ module.exports = {
         // Or, we return a Promise that can fulfill to promise.fulfill(user) or promise.fulfill(errors)
         // `errors` is an array of error message strings
         //
-        // e.g., 
+        // e.g.,
         // Example 1 - Sync Example
         // if (usersByLogin[login] && usersByLogin[login].password === password) {
         //   return usersByLogin[login];
@@ -78,7 +78,7 @@ module.exports = {
         if(newUserAttributes.password.length < 5){
           e.push("Password too short.");
         }
-        if(newUserAttributes.email.length == 0){
+        if(newUserAttributes.email.length === 0){
           e.push("Enter an email.");
         }
         if (e.length > 0){
@@ -115,7 +115,7 @@ module.exports = {
         // });
         // return promise;
         //
-        // Note: Index and db-driven validations are the only validations that occur 
+        // Note: Index and db-driven validations are the only validations that occur
         // here; all other validations occur in the `validateRegistration` step documented above.
         var promise = this.Promise();
         newUserAttributes.password = hash(newUserAttributes.email, newUserAttributes.password);
@@ -143,7 +143,7 @@ module.exports = {
     if(req.loggedIn){
       next();
     } else {
-      req.session.redirectTo = req.url
+      req.session.redirectTo = req.url;
       res.redirect('/login');
     }
   },
@@ -155,7 +155,7 @@ module.exports = {
         res.render('error', { status: 401 });
       }
     } else {
-      req.session.redirectTo = req.url
+      req.session.redirectTo = req.url;
       res.redirect('/login');
     }
   },

@@ -127,14 +127,14 @@ var app = {
       socket.emit('create', name, x, y, function(data){
         if(data.errors) {
           $('#create-error').text(data.errors[0]).show();
-        } else if (data.status = 'ok') {
+        } else if (data.status == 'ok') {
           $('#create-error').hide();
           app.load_play_game(data.name);
         }
       });
     });
   }
-}
+};
 
 socket.on('new_game', function(game) {
   if(app.state == 'main_menu'){
@@ -144,7 +144,7 @@ socket.on('new_game', function(game) {
 });
 socket.on('remove_game', function(name) {
   if(app.state == 'main_menu'){
-    for (i in games_list){
+    for (var i in games_list){
       if (games_list[i].name == name){
         games_list.splice(i,1);
         app.render_join_game(games_list);

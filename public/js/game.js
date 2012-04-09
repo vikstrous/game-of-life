@@ -22,7 +22,7 @@ function join_game(data){
 	$("#play_pause").click(function() {
 		if($("#play_pause").data("value") == "play") {
 			$("#play_pause").data("value", "pause");
-			var data = { points:new Array() };
+			var data = { points: [] };
 			for(var i = 0; i < grid_size.x; i++) {
 				for(var j = 0; j < grid_size.y; j++) {
 					if(grid[i][j] > 0) {
@@ -34,7 +34,7 @@ function join_game(data){
 		}
 	});
 	$('[id^="template_pick_"]').on('click', function() {
-		picked_template($(this))
+		picked_template($(this));
 	});
 	socket.emit('page_ready', current_gid);
 }
@@ -55,10 +55,10 @@ socket.on('page_ready_response', function(data) {
 		$('#header').html('Battle! (Player 1)');
 	} else {
 		$('#header').html('Battle! (Player 2)');
-	}	
-	grid = new Array();
+	}
+	grid = [];
 	for(var i = 0; i < grid_size.x; i++) {
-		grid[i] = new Array();
+		grid[i] = [];
 		for(var j = 0; j < grid_size.y; j++) {
 			grid[i][j] = 0;
 		}
@@ -96,7 +96,7 @@ function display_winner(winner) {
 }
 
 function repaint(pop) {
-	var i_start, i_stop;
+	var i_start, i_stop, i;
 	if(!playing) {
 		if(player1) {
 			i_start = 0;
@@ -120,11 +120,11 @@ function repaint(pop) {
 		x : screen_width / grid_size.x,
 		y : screen_height / grid_size.y
 	};
-	for(var i = i_start; i <= i_stop; i++) {
+	for(i = i_start; i <= i_stop; i++) {
 		context.moveTo(i*line_separation.x + 0.5, 0.5);
 		context.lineTo(i*line_separation.x + 0.5, screen_height + 0.5);
 	}
-	for(var i = 0; i <= grid_size.y; i++) {
+	for(i = 0; i <= grid_size.y; i++) {
 		context.moveTo(i_start*line_separation.x + 0.5, i*line_separation.y + 0.5);
 		context.lineTo(i_stop*line_separation.x + 0.5, i*line_separation.y + 0.5);
 	}
@@ -134,7 +134,7 @@ function repaint(pop) {
 	context.lineWidth = 1;
 	context.stroke();
 	
-	for(var i = 0; i < grid_size.x; i++) {
+	for(i = 0; i < grid_size.x; i++) {
 		for(var j = 0; j < grid_size.y; j++) {
 			if(grid[i][j] > 0) {
 				context.beginPath();
@@ -154,14 +154,14 @@ function repaint(pop) {
 	}
 }
 
-function clicked(e) {	
+function clicked(e) {
 	if(!playing && started) {
 		var x, y;
 		// Get the mouse position relative to the canvas element.
-		if (e.offsetX || e.offsetX == 0) {
+		if (e.offsetX || e.offsetX === 0) {
 			x = e.offsetX;
 			y = e.offsetY;
-		} else if (e.layerX || e.layerX == 0) {
+		} else if (e.layerX || e.layerX === 0) {
 			x = e.layerX;
 			y = e.layerY;
 			var offset = $("#game_of_life").offset();
@@ -186,7 +186,7 @@ function clicked(e) {
 				var n_x = p_x + j;
 				var n_y = p_y + i;
 				if(n_x >= bounds.l && n_x < bounds.r && n_y >= bounds.t && n_y < bounds.b) {
-					if(tiles[i][j] == 0) {
+					if(tiles[i][j] === 0) {
 						grid[n_x][n_y] = 0;
 					} else {
 						if(player1) {

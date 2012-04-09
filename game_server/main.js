@@ -6,7 +6,7 @@ var moore = [[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]];
 
 var sio;
 
-var sockets = new Array();
+var sockets = [];
 
 module.exports = {
 onconnect : function (socket) {
@@ -21,7 +21,7 @@ onconnect : function (socket) {
         db.Games.by_id(game_id, function(err, game) {
             socket_id = game_id + ';' + userId;
             sockets[socket_id] = socket;
-            if(game.players[1] == undefined) {
+            if(game.players[1] === undefined) {
                 game.sockets[0] = socket_id;
                 socket.emit('waiting_for_player');
                 game.save(function() {});
@@ -29,8 +29,8 @@ onconnect : function (socket) {
                 game.sockets[1] = socket_id;
                 sio.sockets.emit('remove_game', game.name);// the game is no longer open
                 var data = {
-                    grid_size : game.grid_size,
-                }
+                    grid_size : game.grid_size
+                };
                 game.save(function(err) {
                     if(err) throw err;
                     //TODO: what if the other player already left?
@@ -67,21 +67,21 @@ onconnect : function (socket) {
                 game.state = 'processing';
                 game.save(function(err){
                     if(err) throw err;
-                    var grid = new Array();
-                    for (var i = 0; i < game.grid_size.x; i++) {
-                        grid[i] = new Array();
+                    var grid = [], i, point;
+                    for (i = 0; i < game.grid_size.x; i++) {
+                        grid[i] = [];
                         for(var j = 0; j < game.grid_size.y; j++) {
                             grid[i][j] = 0;
                         }
                     }
-                    for (var i = 0; i < game.start_state[0].length; i++) {
-                        var point = game.start_state[0][i];
+                    for (i = 0; i < game.start_state[0].length; i++) {
+                        point = game.start_state[0][i];
                         if(point.x < game.grid_size.x / 2) {
                             grid[point.x][point.y] = 1;
                         }
                     }
-                    for (var i = 0; i < game.start_state[1].length; i++) {
-                        var point = game.start_state[1][i];
+                    for (i = 0; i < game.start_state[1].length; i++) {
+                        point = game.start_state[1][i];
                         if(point.x >= game.grid_size.x / 2) {
                             grid[point.x][point.y] = 2;
                         }
@@ -104,21 +104,21 @@ onconnect : function (socket) {
                     game.save(function(err){
                         if (err) throw err;
                         db.Users.by_id(game.players[0], function(err, player1){
-                            if (winner == 1){
+                            if (winner === 1){
                                 player1.win(game.id);
-                            } else if (winner == 2) {
+                            } else if (winner === 2) {
                                 player1.lose(game.id);
-                            } else if (winner == 0) {
+                            } else if (winner === 0) {
                                 player1.tie(game.id);
                             }
                         });
                         db.Users.by_id(game.players[1], function(err, player2){
 
-                            if (winner == 1){
+                            if (winner === 1){
                                 player2.lose(game.id);
-                            } else if (winner == 2) {
+                            } else if (winner === 2) {
                                 player2.win(game.id);
-                            } else if (winner == 0) {
+                            } else if (winner === 0) {
                                 player2.tie(game.id);
                             }
                         });
@@ -135,7 +135,7 @@ onconnect : function (socket) {
         if(!x || !y){
             err.push("Please enter dimensions for the game.");
         }
-        if(!name || name.length == 0){
+        if(!name || name.length === 0){
             err.push("Please enter a name for the game.");
         }
         if(!name.match(/[a-zA-Z0-9\ _\-\(\)\?\!]+/)){
@@ -147,7 +147,7 @@ onconnect : function (socket) {
         if(x > 200 || y > 200){
             err.push("Maximum size: 200");
         }
-        if(err.length == 0){
+        if(err.length === 0){
             //TODO: validate name (no weird characters! alphanum)
             db.Games.name_exists(name, function(err, exists){
                 if(err) throw err;
@@ -220,8 +220,9 @@ onconnect : function (socket) {
     function quit() {
         //check if there is a game in an unfinished state left behind and if there is, kill it
         //TODO: consider using a timeout for this so they can come back quickly
+        var userId;
         if (socket.handshake && socket.handshake.session.auth)
-            var userId = socket.handshake.session.auth.userId;
+            userId = socket.handshake.session.auth.userId;
         var gid = socket.gid;
         if (userId && gid){
             db.Games.by_id(gid, function(err, game){
@@ -259,18 +260,18 @@ onconnect : function (socket) {
 init : function(s) {
     sio = s;
 }
-}
+};
 
 function mod(val, upper) {
     return ((val % upper) + upper) % upper;
 }
 
 function updateGrid() {
-    var newGrid = new Array();
-    for(var i = 0; i < grid_size.x; i++) {
-        newGrid[i] = new Array();
-        for(var j = 0; j < grid_size.y; j++) {
-            var sum = new Array();
+    var newGrid = [],i,j;
+    for(i = 0; i < grid_size.x; i++) {
+        newGrid[i] = [];
+        for(j = 0; j < grid_size.y; j++) {
+            var sum = [];
             sum[0] = 0;
             sum[1] = 0;
             sum[2] = 0;
@@ -282,7 +283,7 @@ function updateGrid() {
                     sum[grid[g_x][g_y]]++;
                 }
             }
-            if(grid[i][j] == 0 && sum[0] == 3) {
+            if(grid[i][j] === 0 && sum[0] === 3) {
                 if(sum[1] > sum[2]) {
                     newGrid[i][j] = 1;
                 } else {
@@ -301,8 +302,8 @@ function updateGrid() {
             }
         }
     }
-    for(var i = 0; i < grid_size.x; i++) {
-        for(var j = 0; j < grid_size.y; j++) {
+    for(i = 0; i < grid_size.x; i++) {
+        for(j = 0; j < grid_size.y; j++) {
             grid[i][j] = newGrid[i][j];
         }
     }

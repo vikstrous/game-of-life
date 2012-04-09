@@ -17,8 +17,8 @@ function init_numeric_fields(obj, fields){
   if(typeof obj === 'string'){
     obj = JSON.parse(obj);
   }
-  for (f in fields){
-    if(obj[fields[f]] == undefined)
+  for (var f in fields){
+    if(obj[fields[f]] === undefined)
       obj[fields[f]] = 0;
   }
   return obj;
@@ -27,8 +27,8 @@ function init_list_fields(obj, fields){
   if(typeof obj === 'string'){
     obj = JSON.parse(obj);
   }
-  for (f in fields){
-    if(obj[fields[f]] == undefined)
+  for (var f in fields){
+    if(obj[fields[f]] === undefined)
       obj[fields[f]] = [];
   }
   return obj;
@@ -44,7 +44,7 @@ function extract(obj1, properties, obj2){
   if(typeof obj2 !== 'object' || obj2 === null){
     obj2 = {};
   }
-  for (p in properties){
+  for (var p in properties){
     obj2[properties[p]] = obj1[properties[p]];
   }
   return obj2;
@@ -54,22 +54,22 @@ function extract(obj1, properties, obj2){
 var User = function(data){
   data = init_list_fields(data, ['wins', 'losses', 'ties']);
   extract(data, this.properties, this);
-}
+};
 
 User.prototype = {
   properties: ['id', 'email', 'password', 'wins', 'losses', 'ties', 'isAdmin'],
   save: function(cb){
     //new
     var self = this;
-    if(this.id == undefined){
+    if(this.id === undefined){
       Users.next_uid(function(err, uid){
         if(err) throw err;
         console.log(uid);
         self.id = uid;
-        client.mset('user_by_uid:' + uid, JSON.stringify(extract(self, self.properties)), 
+        client.mset('user_by_uid:' + uid, JSON.stringify(extract(self, self.properties)),
           'uid_by_email:' + self.email, uid, cb);
       });
-    //existing 
+    //existing
     } else {
       client.get('user_by_uid:'+this.id, function(err, old_user){
         if(err) throw err;
@@ -95,7 +95,7 @@ User.prototype = {
     this.ties.push(gid);
     this.save(cb);
   }
-}
+};
 
 var Users = {
   next_uid: function(cb){
@@ -121,20 +121,20 @@ var Users = {
   list: function(cb){
     client.keys("user_by_uid:*", function(err, keys) {
       client.mget(keys, function(err, users){
-        for(i in users){
+        for(var i in users){
           users[i] = new User(users[i]);
         }
         cb(err, users);
       });
     });
   }
-}
+};
 
 //state: open, waiting1, waiting2, processing, archived
 //only open games are indexed by name!
 var Game = function(data){
   extract(data, this.properties, this);
-}
+};
 
 //TODO: eliminate need for properties list using getters and setters?
 Game.prototype = {
@@ -142,7 +142,7 @@ Game.prototype = {
   save: function(cb){
     var self = this;
     //new
-    if(this.id == undefined){
+    if(this.id === undefined){
       Games.next_gid(function(err, gid) {
         self.id = gid;
         var m = client.multi();
@@ -166,7 +166,7 @@ Game.prototype = {
         } else if (old_game.state == 'open' && self.state != 'open') {
           m.del('open_gid_by_name:' + self.name, self.id);
         }
-        m.set('game_by_gid:'+self.id, JSON.stringify(extract(self, 
+        m.set('game_by_gid:'+self.id, JSON.stringify(extract(self,
           self.properties)));
         m.exec(cb);
       });
@@ -179,10 +179,10 @@ Game.prototype = {
     m.srem('all_games_state_'+this.state, this.id);
     if(this.state == 'open'){
       m.del('open_gid_by_name:'+this.name);
-    };
+    }
     m.exec(cb);
-  },
-}
+  }
+};
 
 var Games = {
   next_gid: function(cb){
@@ -205,11 +205,11 @@ var Games = {
     client.exists('open_gid_by_name:'+name, cb);
   },
   by_ids: function(gids, cb){
-    for (i in gids){
+    for (var i in gids){
       gids[i] = 'game_by_gid:' + gids[i];
     }
     client.mget(gids, function(err, data){
-      for(i in data){
+      for(var i in data){
         data[i] = new Game(data[i]);
       }
       cb(err, data);
@@ -218,7 +218,7 @@ var Games = {
   all_gids_in_state: function(state, cb){
     client.smembers('all_games_state_'+state, cb);
   }
-}
+};
 
 //NO CHANGING GAME NAMES
 db = {

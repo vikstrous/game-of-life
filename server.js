@@ -1,12 +1,12 @@
-var express = require('express')
-  , stylus = require('stylus')
-  , io = require('socket.io')
-  , RedisStore = require('connect-redis')(express)
-  , db = require(__dirname + '/db.js')
-  , Session = require('connect').middleware.session.Session
-  , parseCookie = require('connect').utils.parseCookie
-  , game_server = require(__dirname + '/game_server/main.js')
-  , auth = require(__dirname + '/auth.js');
+var express = require('express'),
+    stylus = require('stylus'),
+   io = require('socket.io'),
+   RedisStore = require('connect-redis')(express),
+   db = require(__dirname + '/db.js'),
+   Session = require('connect').middleware.session.Session,
+   parseCookie = require('connect').utils.parseCookie,
+   game_server = require(__dirname + '/game_server/main.js'),
+   auth = require(__dirname + '/auth.js');
   
 var app = express.createServer();
 auth.init(app);
@@ -16,9 +16,9 @@ var sessionStore = new RedisStore({client:db.client});
 app.configure(function(){
   app.set('view engine', 'jade');
   app.use(express.cookieParser());
-  app.use(express.session({store: sessionStore
-      , secret: 'tj54u49tpowe548tuwp94t58u3w094ity897y8y'
-      , key: 'express.sid'}));
+  app.use(express.session({store: sessionStore,
+        secret: 'tj54u49tpowe548tuwp94t58u3w094ity897y8y',
+        key: 'express.sid'}));
   app.use(express.bodyParser());
   //app.use(express.csrf()); //TODO: USE THIS!!
   app.use(auth.middleware());
@@ -46,7 +46,7 @@ sio.set('authorization', function (data, accept) {
     if (data.headers.cookie) {
         data.cookie = parseCookie(data.headers.cookie);
         data.sessionID = data.cookie['express.sid'];
-        // save the session store to the data object 
+        // save the session store to the data object
         // (as required by the Session constructor)
         data.sessionStore = sessionStore;
         sessionStore.get(data.sessionID, function (err, session) {

@@ -2,11 +2,11 @@ var moore = [[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]];
 var game_logic = {
 	generation_limit : 500,
 	update : function(grid, grid_size) {
-		var newGrid = new Array();
+		var newGrid = [];
 		for(var i = 0; i < grid_size.x; i++) {
-			newGrid[i] = new Array();
+			newGrid[i] = [];
 			for(var j = 0; j < grid_size.y; j++) {
-				var sum = new Array();
+				var sum = [];
 				sum[0] = 0;
 				sum[1] = 0;
 				sum[2] = 0;
@@ -18,7 +18,7 @@ var game_logic = {
 						sum[grid[g_x][g_y]]++;
 					}
 				}
-				if(grid[i][j] == 0 && sum[0] == 3) {
+				if(grid[i][j] === 0 && sum[0] === 3) {
 					newGrid[i][j] = (sum[1] > sum[2]) ? 1 : 2;
 				} else if(grid[i][j] > 0 && (sum[0] == 2 || sum[0] == 3)) {
 					if(sum[1] > sum[2]) {
@@ -44,15 +44,18 @@ var game_logic = {
 		var pop2 = 0;
 		for(var i = 0; i < grid_size.x; i++) {
 			for(var j = 0; j < grid_size.y; j++) {
-				if(grid[i][j] != 0) {
-					(grid[i][j] == 1) ? pop1++ : pop2++;
+				if(grid[i][j] !== 0) {
+					if(grid[i][j] === 1)
+						pop1++;
+					else
+						pop2++;
 				}
 			}
 		}
 		return {pop1: pop1, pop2: pop2};
 	},
 	winner: function(iteration, pop) {
-		if(iteration >= game_logic.generation_limit || pop.pop1 == 0 || pop.pop2 == 0) {
+		if(iteration >= game_logic.generation_limit || pop.pop1 === 0 || pop.pop2 === 0) {
 			var winner = 0;
 			if(pop.pop1 > pop.pop2) winner = 1;
 			if(pop.pop2 > pop.pop1) winner = 2;
