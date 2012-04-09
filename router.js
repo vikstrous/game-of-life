@@ -1,9 +1,9 @@
-var auth = require(__dirname + '/auth.js')
-  , login_check = auth.login_check
-  , ajax_login_check = auth.ajax_login_check
-  , admin_only = auth.admin_only
-  , is_admin = auth.is_admin
-  , db = require(__dirname + '/db.js');
+var auth = require(__dirname + '/auth.js'),
+    login_check = auth.login_check,
+    ajax_login_check = auth.ajax_login_check,
+    admin_only = auth.admin_only,
+    is_admin = auth.is_admin,
+    db = require(__dirname + '/db.js');
 
 function render(req, res, path, vars){
   //if mobile
@@ -16,7 +16,7 @@ function render(req, res, path, vars){
   else {
     res.render(path, vars);
   }
-};
+}
 
 module.exports = function(app){
 
@@ -29,7 +29,7 @@ module.exports = function(app){
       if(err) throw err;
       db.Games.by_ids(gids, function(err, games){
         var g_list = [];
-        for (g in games){
+        for (var g in games) {
           var game = games[g];
           g_list.push({name:game.name, grid_size:game.grid_size}); //TODO: get the (user)name of the creator of the game in here
         }
