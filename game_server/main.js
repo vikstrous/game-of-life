@@ -10,7 +10,7 @@ var sockets = new Array();
 
 module.exports = {
 onconnect : function (socket) {
-    
+
     socket.on('page_ready', function(game_id) {
         socket.gid = game_id;
         var userId = socket.handshake.session.auth.userId;
@@ -27,6 +27,7 @@ onconnect : function (socket) {
                 game.save(function() {});
             } else {
                 game.sockets[1] = socket_id;
+                sio.sockets.emit('remove_game', game.name);// the game is no longer open
                 var data = {
                     grid_size : game.grid_size,
                 }
@@ -39,7 +40,7 @@ onconnect : function (socket) {
             }
         });
     });
-    
+
     socket.on('grid_play', function(data) {
         var gid = socket.gid;
         db.Games.by_id(gid, function(err, game) {
@@ -47,9 +48,9 @@ onconnect : function (socket) {
             if (!game) throw "no game";
             var userId = socket.handshake.session.auth.userId;
             //TODO: handle this in a way to makes sense: send a message saying "no specatators allowed"; this currently crashes the server
-            console.assert((userId == game.players[0] || 
-                userId == game.players[1]), 
-                "The player IDs of game " + game.id + 
+            console.assert((userId == game.players[0] ||
+                userId == game.players[1]),
+                "The player IDs of game " + game.id +
                 " are wrong: " + game.players);
             if (game.players[0] == userId) {
                 game.start_state[0] = data.points;
@@ -152,10 +153,10 @@ onconnect : function (socket) {
                 if(err) throw err;
                 if(!exists){
                     var data = {
-                        name:name, 
-                        state:'open', 
-                        players:[uid], 
-                        grid_size:{x:Number(x),y:Number(y)}, 
+                        name:name,
+                        state:'open',
+                        players:[uid],
+                        grid_size:{x:Number(x),y:Number(y)},
                         start_state:[null, null],
                         sockets:[null,null]};
                     var game = new db.Game(data);
@@ -209,13 +210,13 @@ onconnect : function (socket) {
         // we don't want to override anything, but the age)
         // reloading will also ensure we keep an up2date copy
         // of the session with our connection.
-        hs.session.reload( function () { 
+        hs.session.reload( function () {
             // "touch" it (resetting maxAge and lastAccess)
             // and save it back again.
             hs.session.touch().save();
         });
     }, 60 * 1000);
-  
+
     function quit() {
         //check if there is a game in an unfinished state left behind and if there is, kill it
         //TODO: consider using a timeout for this so they can come back quickly
@@ -296,7 +297,7 @@ function updateGrid() {
                     newGrid[i][j] = grid[i][j];
                 }
             } else {
-                newGrid[i][j] = 0;             
+                newGrid[i][j] = 0;
             }
         }
     }
