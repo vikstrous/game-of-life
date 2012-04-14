@@ -126,18 +126,11 @@ module.exports = {
         });
         return promise;
       });
-      
+
       everyauth.helpExpress(app, {userAlias:'user'});
       everyauth.everymodule.findUserById(function (userId, callback) {
         db.Users.by_id(userId, callback);
       });
-  },
-  ajax_login_check: function(req, res, next) {
-    if(req.loggedIn){
-      next();
-    } else {
-      res.json({require_login:true});
-    }
   },
   login_check: function(req, res, next) {
     if(req.loggedIn){

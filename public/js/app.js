@@ -137,16 +137,16 @@ var app = {
 };
 
 socket.on('new_game', function(game) {
+  games_list.unshift(game);
   if(app.state == 'main_menu'){
-    games_list.unshift(game);
     app.render_join_game(games_list);
   }
 });
 socket.on('remove_game', function(name) {
-  if(app.state == 'main_menu'){
-    for (var i in games_list){
-      if (games_list[i].name == name){
-        games_list.splice(i,1);
+  for (var i in games_list){
+    if (games_list[i].name == name){
+      games_list.splice(i,1);
+      if(app.state == 'main_menu'){
         app.render_join_game(games_list);
       }
     }

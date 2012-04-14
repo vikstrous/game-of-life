@@ -14,14 +14,14 @@ html
       - // this is to make padding work without messing up 100% min height
       .main-inner
         .banner
-          a(href='/') The Game Of Life and Death
+          a(href='/') The Game Of Life
         ul.nav
           - if(everyauth.loggedIn)
             li.right
               a(href="/logout") Logout
           - else
             li
-              a(href="/login") Login
+              a(href="/login") Log in
             li
               a(href="/register") Register
           - if ('undefined' !== typeof user)

@@ -1,6 +1,6 @@
 {
   "name": "gofl",
-  "version": "0.0.1-7",
+  "version": "0.0.1-9",
   "dependencies": {
     "express": "*",
     "stylus": "*",

@@ -128,7 +128,12 @@ onconnect : function (socket) {
         });
     });
 
-    socket.on('create', function(name, x, y, cb){
+    socket.on('create', function(name, x, y, cb) {
+        //we don't currently support anonymous users
+        if(!socket.handshake || !socket.handshake.session.auth){
+            return cb({errors:["Please log in or register."]});
+        }
+
         var uid = socket.handshake.session.auth.userId;
         console.log(uid);
         var err = [];
@@ -177,6 +182,11 @@ onconnect : function (socket) {
 
 
     socket.on('join', function(name, cb){
+        //we don't currently support anonymous users
+        if(!socket.handshake || !socket.handshake.session.auth){
+            return cb({errors:["Please log in or register."]});
+        }
+
         var uid = socket.handshake.session.auth.userId;
         db.Games.by_name(name, function(err, game) {
           if(err) throw err;

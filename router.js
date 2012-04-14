@@ -1,6 +1,5 @@
 var auth = require(__dirname + '/auth.js'),
     login_check = auth.login_check,
-    ajax_login_check = auth.ajax_login_check,
     admin_only = auth.admin_only,
     is_admin = auth.is_admin,
     db = require(__dirname + '/db.js');
