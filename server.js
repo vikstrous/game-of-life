@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 var express = require('express'),
     stylus = require('stylus'),
    io = require('socket.io'),
@@ -8,7 +7,7 @@ var express = require('express'),
    parseCookie = require('connect').utils.parseCookie,
    game_server = require(__dirname + '/game_server/main.js'),
    auth = require(__dirname + '/auth.js');
-  
+
 var app = express.createServer();
 auth.init(app);
 

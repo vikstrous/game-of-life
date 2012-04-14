@@ -25,7 +25,7 @@ function ajax(method, args){
   }
   args.push(function(data){
     if(data.require_login) {
-      console.log("you have to log in!");
+      alert("you have to log in!");
     } else if(typeof cb == 'function') {
       cb.apply(this, arguments);
     }
@@ -65,7 +65,7 @@ var app = {
     app.no_top_error();
     app.state = 'show_game';
   },
-  
+
   //render list of games to join
   render_join_game: function(games){
     page_is_loading(true);
