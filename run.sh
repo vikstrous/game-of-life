@@ -1,5 +1,5 @@
 nodeins_found=`ps -ef|grep -v grep|grep node-inspect|awk '{print $9}'`
-if test -z $nodeins_found 
+if test -z $nodeins_found
 then
 node-inspector &
 else
