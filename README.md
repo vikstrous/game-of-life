@@ -11,12 +11,11 @@ Game of Life (gofl?)
 
 **TODO (Viktor) :**
 
- - go from ajax to full sockets!!!
  - ajax all the other things - profiles, etc.
  - time limit to make a move
  - replay games
  - matchmaking
- - rematch
+ - rematch game should not appear in the public games list
  - smoother layout
  - benchmark browsers -> give them the option to play bigger game
  - webgl shaders!

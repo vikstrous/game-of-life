@@ -138,7 +138,7 @@ var Game = function(data){
 
 //TODO: eliminate need for properties list using getters and setters?
 Game.prototype = {
-  properties: ['id', 'name', 'state', 'start_state', 'grid_size', 'players', 'sockets'],
+  properties: ['id', 'name', 'state', 'start_state', 'grid_size', 'players', 'sockets', 'rematch_id'],
   save: function(cb){
     var self = this;
     //new

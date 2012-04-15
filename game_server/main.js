@@ -55,11 +55,9 @@ module.exports = {
                     " are wrong: " + game.players);
                 if (game.players[0] == userId) {
                     game.start_state[0] = data.points;
-                    console.log(data.points);
                 } else {
                     game.start_state[1] = data.points;
                 }
-                console.log(game);
                 if (game.state == 'waiting1') {
                     game.state = 'waiting2';
                     game.save(function(err){
@@ -147,14 +145,16 @@ module.exports = {
                 //if the rematch game doesn't exist, create it
                 var data = {
                     name:(new Date()).getTime(),
-                    state: 'waiting1',
-                    players: game.players,
+                    state: 'open',
+                    players: [uid],
                     grid_size: game.grid_size,
                     start_state:[null, null],
                     sockets:[null,null]};
                 var new_game = new db.Game(data);
                 new_game.save(function(err){
                     if(err) throw err;
+                    game.rematch_id = new_game.id;
+                    game.save();
                     cb({id:new_game.id, status:'ok'});
                 });
             })

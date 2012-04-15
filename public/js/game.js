@@ -5,7 +5,6 @@ var grid;
 var iteration = 1;
 
 var player1 = false;
-var playing = false;
 var started = false;
 var pop;
 var current_template = {name: 'default', tiles: [[1]], type: 'default'};
@@ -14,8 +13,10 @@ var Game = {
 
 	grid_size: {},
 	id: null,
+	playing: false,
 
 	join_game: function (data){
+		Game.playing = false;
 		Game.grid_size = data.grid_size;
 		Game.id = data.id;
 		Game.init_template_pane();
@@ -32,7 +33,6 @@ var Game = {
 						}
 					}
 				}
-				console.log(data);
 				socket.emit('grid_play', data);
 			}
 		});
@@ -70,7 +70,7 @@ var Game = {
 
 	repaint: function(pop) {
 		var i_start, i_stop, i;
-		if(!playing) {
+		if(!Game.playing) {
 			if(player1) {
 				i_start = 0;
 				i_stop = Game.grid_size.x / 2;
@@ -120,7 +120,7 @@ var Game = {
 			}
 		}
 
-		if(playing) {
+		if(Game.playing) {
 			if(typeof pop == 'object'){
 				$("#pop1").html(pop.pop1);
 				$("#pop2").html(pop.pop2);
@@ -132,7 +132,7 @@ var Game = {
 	},
 
 	clicked: function(e) {
-		if(!playing && started) {
+		if(!Game.playing && started) {
 			var x, y;
 			// Get the mouse position relative to the canvas element.
 			if (e.offsetX || e.offsetX === 0) {
@@ -260,7 +260,7 @@ socket.on('page_ready_response', function(data) {
 socket.on('grid_played', function(data) {
 	$("#play_pause").html("Playing");
 	grid = data;
-	playing = true;
+	Game.playing = true;
 	$("#info_display").show();
 	animation_id = setInterval(Game.update, 1000/20);
 });
