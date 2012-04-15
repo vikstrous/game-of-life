@@ -54,6 +54,7 @@ var app = {
     $('#header').hide();
     $('#game').hide();
     app.no_top_error();
+    app.render_join_game(games_list);
     app.state = 'main_menu';
   },
 

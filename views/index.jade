@@ -6,15 +6,15 @@
   #game
 
 - for(tmpl in {'login':'', 'register':'', 'join':'', 'create':'', 'game':''})
-    script(id=tmpl+'-tmpl', type="template")
-      != partial(tmpl)
+  script(id=tmpl+'-tmpl', type="template")
+    != partial(tmpl)
 
 script(src="/socket.io/socket.io.js")
 script(src="/js/app.js")
 script(src="/js/library.js")
 script(src="/js/game.js")
 script(src="/js/shared/shared.js")
+//script(src="/js/track.js")
 script(src="/js/lib/jquery.mousewheel.js")
 script(src="/js/lib/jquery.jscrollpane.min.js")
 script(src="/js/lib/mwheelIntent.js")
-script(src="/js/lib/track.js")
