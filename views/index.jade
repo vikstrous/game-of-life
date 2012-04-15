@@ -1,13 +1,18 @@
 #app
   #top-error.error
-  #create
-  #join
-  h1#header
-  #game
+  #main-panel
+    a#create-btn Create a game!
+    #create.hidden
+      != partial('create')
+    #join
+  #game-panel
+    h1#header
+    #game
 
-- for(tmpl in {'login':'', 'register':'', 'join':'', 'create':'', 'game':''})
-  script(id=tmpl+'-tmpl', type="template")
-    != partial(tmpl)
+div.templates.hidden
+  - for(tmpl in {'login':'', 'register':'', 'join':'', 'game':''})
+    script(id=tmpl+'-tmpl', type="template")
+      != partial(tmpl)
 
 script(src="/socket.io/socket.io.js")
 script(src="/js/app.js")

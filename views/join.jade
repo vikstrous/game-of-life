@@ -1,10 +1,10 @@
-h1 Join a game!
+h1(class="{{^games}}hidden{{/games}}") Join a game!
 label.show-bots
-  p.hidden Show bots: 
+  p.hidden Show bots:
     input#show_bots(type="checkbox", name="bots")
 ul.games
   | {{#games}}
   li.game
-    a(name="{{name}}") {{name}}
+    a(gameid="{{id}}") {{name}}
     p Grid size: {{grid_size.x}} x {{grid_size.y}}
   | {{/games}}

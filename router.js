@@ -23,20 +23,6 @@ module.exports = function(app){
     render(req, res, 'index');
   });
 
-  app.get('/join', function(req, res) {
-    db.Games.all_gids_in_state('open', function(err, gids){
-      if(err) throw err;
-      db.Games.by_ids(gids, function(err, games){
-        var g_list = [];
-        for (var g in games) {
-          var game = games[g];
-          g_list.push({name:game.name, grid_size:game.grid_size}); //TODO: get the (user)name of the creator of the game in here
-        }
-        res.json(g_list);
-      });
-    });
-  });
-
   app.get('/test', admin_only, function(req, res) {
     render(req, res, 'test');
   });
