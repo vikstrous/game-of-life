@@ -32,6 +32,7 @@ var App = {
     if (games_list.length == 0) {
       App.show_create_game();
     }
+    App.no_top_status();
     App.no_top_error();
     App.render_join_game(games_list);
     App.state = 'main_menu';
@@ -40,6 +41,7 @@ var App = {
   show_game: function(){
     $('#main-panel').hide();
     $('#game-panel').show();
+    App.no_top_status();
     App.no_top_error();
     App.state = 'show_game';
   },
@@ -52,7 +54,8 @@ var App = {
   rematch: function(game){
     //takes the settings from the old game and makes a new game
     //in a rematch game there is a limited number of players who can join
-    socket.emit('rematch', game.id, function(data){
+    App.top_status("Waiting for other player to accept rematch.");
+    socket.emit('rematch', game.id, function(data) {
       if(data.errors) App.top_error(data.errors[0]);
       else if (data.id){
         App.load_play_game(data.id);
@@ -107,6 +110,13 @@ var App = {
     });
   },
 
+  top_status: function(text){
+    $('#top-status').text(text).show();
+  },
+
+  no_top_status: function(){
+    $('#top-status').hide();
+  },
   top_error: function(text){
     $('#top-error').text(text).show();
   },

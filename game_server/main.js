@@ -6,27 +6,32 @@ var moore = [[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]];
 
 var sio;
 
-var sockets = [];
+var sockets = {};
+var rematches = {};
 
 module.exports = {
     onconnect : function (socket) {
 
         socket.on('page_ready', function(game_id) {
             socket.gid = game_id;
-            var userId = socket.handshake.session.auth.userId;
-            db.Users.by_id(userId, function(err, user){
+            var uid = socket.handshake.session.auth.userId;
+            db.Users.by_id(uid, function(err, user){
                 //TODO: verify that this user is allowed to join this game
                 console.log(user);
             });
             db.Games.by_id(game_id, function(err, game) {
-                socket_id = game_id + ';' + userId;
+                var player = game.players.indexOf(uid);
+                if (player == -1) {
+                    // NOT ALLOWED TO JOIN!
+                    return;
+                }
+                socket_id = game_id + ';' + uid;
                 sockets[socket_id] = socket;
+                game.sockets[player] = socket_id;
                 if(game.players[1] === undefined) {
-                    game.sockets[0] = socket_id;
                     socket.emit('waiting_for_player');
                     game.save(function() {});
                 } else {
-                    game.sockets[1] = socket_id;
                     sio.sockets.emit('remove_game', game.id);// the game is no longer open
                     game.state = "waiting1";
                     var data = {
@@ -129,36 +134,61 @@ module.exports = {
             });
         });
 
-        socket.on('rematch', function(gid, cb){
-            //we don't currently support anonymous users
+        socket.on('rematch', function(gid, cb) {
+            // we don't currently support anonymous users
             if(!socket.handshake || !socket.handshake.session.auth){
                 return cb({errors:["Please log in or register."]});
             }
             var uid = socket.handshake.session.auth.userId;
-            db.Games.by_id(gid, function(err, game){
-                if (err) throw err;
-                if (!game) return cb({errors:["Attempt to rematch a non-existent game."]});
-                var player = game.players.indexOf(uid);
-                if (player == -1) return cb({errors:["Attempt to rematch a non-existent game."]});
-                //check if the rematch is already waiting
-                if (game.rematch_id !== undefined) return cb({id: game.rematch_id, status:'ok'});
-                //if the rematch game doesn't exist, create it
-                var data = {
-                    name:(new Date()).getTime(),
-                    state: 'open',
-                    players: [uid],
-                    grid_size: game.grid_size,
-                    start_state:[null, null],
-                    sockets:[null,null]};
-                var new_game = new db.Game(data);
-                new_game.save(function(err){
-                    if(err) throw err;
-                    game.rematch_id = new_game.id;
-                    game.save();
-                    cb({id:new_game.id, status:'ok'});
-                });
-            })
 
+            // store the rematches used by this user in the socket so that they can be removed when
+            //the client disconnects
+            if (typeof socket.rematches === 'array'){
+                socket.rematches.push(gid);
+            } else {
+                socket.rematches = [gid];
+            }
+
+            // if we are the first one to want a rematch store our callback
+            if (!rematches[gid]) {
+                rematches[gid] = {id: uid, cb: cb};
+            // if someone else already is waiting for a rematch
+            } else {
+                var other_uid = rematches[gid].id;
+                var other_cb = rematches[gid].cb;
+                db.Games.by_id(gid, function(err, game){
+                    if (err) throw err;
+                    if (!game) {
+                        cb({errors:["Attempt to rematch a non-existent game."]});
+                        //TODO: try catch?
+                        other_cb({errors:["Attempt to rematch a non-existent game."]});
+                        return;
+                    }
+                    var player = game.players.indexOf(uid);
+                    if (player == -1) {
+                        cb({errors:["Attempt to rematch a game you didn't play."]});
+                        //TODO: try catch?
+                        other_cb({errors:["Attempt to rematch a game you didn't play."]});
+                        return;
+                    }
+                    // create the game!!!
+                    //TODO: make it a special "rematch game"
+                    var data = {
+                        name: (new Date()).getTime(),
+                        state: 'waiting1',
+                        players: [uid, other_uid],
+                        grid_size: game.grid_size,
+                        start_state: [null, null],
+                        sockets: [null,null]
+                    };
+                    var new_game = new db.Game(data);
+                    new_game.save(function(err){
+                        if(err) throw err;
+                        cb({id: new_game.id, status:'ok'});
+                        other_cb({id: new_game.id, status:'ok'});
+                    });
+                })
+            }
         });
 
         socket.on('create', function(name, x, y, cb) {
@@ -279,6 +309,13 @@ module.exports = {
             if (socket.handshake && socket.handshake.session.auth)
                 userId = socket.handshake.session.auth.userId;
             var gid = socket.gid;
+
+            if (socket.rematches){
+                for(var r in socket.rematches){
+                    delete rematches[socket.rematches[r]];
+                }
+            }
+
             if (userId && gid){
                 db.Games.by_id(gid, function(err, game){
                     if (err) throw err;

@@ -11,12 +11,18 @@ Game of Life (gofl?)
 
 **TODO (Viktor) :**
 
- - ajax all the other things - profiles, etc.
+ - socket all the other things - profiles, etc.
  - time limit to make a move
  - replay games
  - matchmaking
- - rematch game should not appear in the public games list
+ - make rematch games their own thing
  - smoother layout
+ - facebook connect
+ - challenge a friend on facebook
+ - anonymous users
+ - tournaments
+ - chat
+ - Use Stripe for micropayments?
  - benchmark browsers -> give them the option to play bigger game
  - webgl shaders!
  - preloading system fun stuff?
@@ -24,6 +30,7 @@ Game of Life (gofl?)
 **TODO (Greg) :**
 
  - make rotation of pieces
+ - keep track of which game the user is in so we can override the cached socket connection if they join with a new client
  - make the size of the pieces selector make sense?
  - scale pieces down to fit them in the menu
  - pregenerate .png images for the pieces (in a sprite sheet? on another server?)

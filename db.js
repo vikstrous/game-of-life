@@ -147,9 +147,6 @@ Game.prototype = {
         self.id = gid;
         var m = client.multi();
         m.sadd('all_games_state_'+self.state, self.id);
-        if(self.state == 'open'){
-          m.set('open_gid_by_name:' + self.name, self.id);
-        }
         m.set('game_by_gid:'+self.id, JSON.stringify(
           extract(self, self.properties)));
         m.exec(cb);
@@ -160,11 +157,6 @@ Game.prototype = {
         var m = client.multi();
         if(old_game.state != self.state) {
           m.smove('all_games_state_'+old_game.state, 'all_games_state_'+self.state, self.id);
-        }
-        if(old_game.state != 'open' && self.state == 'open'){
-          m.set('open_gid_by_name:' + self.name, self.id);
-        } else if (old_game.state == 'open' && self.state != 'open') {
-          m.del('open_gid_by_name:' + self.name, self.id);
         }
         m.set('game_by_gid:'+self.id, JSON.stringify(extract(self,
           self.properties)));
@@ -177,9 +169,6 @@ Game.prototype = {
     var m = client.multi();
     m.del('game_by_gid:'+this.id);
     m.srem('all_games_state_'+this.state, this.id);
-    if(this.state == 'open'){
-      m.del('open_gid_by_name:'+this.name);
-    }
     m.exec(cb);
   }
 };
@@ -191,14 +180,6 @@ var Games = {
   by_id: function(gid, cb){
     client.get('game_by_gid:' + gid, function(err, data){
       cb(err, data?new Game(data):false);
-    });
-  },
-  by_name: function(name, cb){
-    client.get('open_gid_by_name:' + name, function(err, gid){
-      if(err) cb(err, gid);
-      else {
-        Games.by_id(gid, cb);
-      }
     });
   },
   name_exists: function(name, cb){

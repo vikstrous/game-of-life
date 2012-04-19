@@ -41,6 +41,11 @@ a {
   background-image: -webkit-repeating-linear-gradient(135deg, transparent, transparent 35px, rgba(255,255,255,0.50) 35px, rgba(255,255,255,0.50) 70px);
   font-size: 15px;
 }
+.status {
+  background-color: #8bf;
+  background-image: -webkit-repeating-linear-gradient(135deg, transparent, transparent 35px, rgba(255,255,255,0.50) 35px, rgba(255,255,255,0.50) 70px);
+  font-size: 15px;
+}
 #display_table tr td {
   text-align: center;
 }

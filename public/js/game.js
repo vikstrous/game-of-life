@@ -1,8 +1,6 @@
-var grid_colors = ["rgb(40,255,40)", "rgb(255,40,40)"];
 var moore = [[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]];
 var animation_id;
 var grid;
-var iteration = 1;
 
 var player1 = false;
 var started = false;
@@ -14,12 +12,16 @@ var Game = {
 	grid_size: {},
 	id: null,
 	playing: false,
+	grid_colors: ["rgb(40,255,40)", "rgb(255,40,40)"],
+	iteration: 0,
 
-	join_game: function (data){
+	join_game: function (data) {
 		Game.playing = false;
 		Game.grid_size = data.grid_size;
 		Game.id = data.id;
 		Game.init_template_pane();
+		Game.iteration = 0;
+
 		document.getElementById("game_of_life").addEventListener('click', Game.clicked, false);
 		$("#play_pause").data("value", "play");
 		$("#play_pause").click(function() {
@@ -45,9 +47,9 @@ var Game = {
 	update: function() {
 			grid = game_logic.update(grid, Game.grid_size);
 			pop = game_logic.grid_pop(grid, Game.grid_size);
-			iteration++;
+			Game.iteration++;
 			Game.repaint(pop);
-			var winner = game_logic.winner(iteration, pop);
+			var winner = game_logic.winner(Game.iteration, pop);
 			if(winner >= 0) {
 				clearInterval(animation_id);
 				Game.display_winner(winner);
@@ -112,7 +114,7 @@ var Game = {
 				if(grid[i][j] > 0) {
 					context.beginPath();
 					context.rect(i*line_separation.x + 0.5, j*line_separation.y + 0.5, line_separation.x, line_separation.y);
-					context.fillStyle = grid_colors[grid[i][j] - 1];
+					context.fillStyle = Game.grid_colors[grid[i][j] - 1];
 					context.strokeStyle = "";
 					context.fill();
 					context.stroke();
@@ -124,7 +126,7 @@ var Game = {
 			if(typeof pop == 'object'){
 				$("#pop1").html(pop.pop1);
 				$("#pop2").html(pop.pop2);
-				$("#gen").html(iteration);
+				$("#gen").html(Game.iteration);
 			} else {
 				console.trace();
 			}
