@@ -26,7 +26,7 @@ module.exports = function(app){
   app.get('/test', admin_only, function(req, res) {
     render(req, res, 'test');
   });
-
+/*
   app.get('/admin', admin_only, function(req, res) {
     db.Games.all_gids_in_state('open', function(err, gids){
       if(err) throw err;
@@ -43,7 +43,7 @@ module.exports = function(app){
         res.redirect('back');
       });
     });
-  });
+  });*/
 
   app.get('/profile', login_check, function(req, res) {
     render(req, res, 'profile', {profile: req.user});

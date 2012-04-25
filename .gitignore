@@ -2,3 +2,5 @@ node_modules
 *~
 *.swp
 .nide
+*.sublime-project
+*.sublime-workspace

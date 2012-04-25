@@ -12,12 +12,11 @@ Game of Life (gofl?)
 **TODO (Viktor) :**
 
  - socket all the other things - profiles, etc.
- - time limit to make a move
  - replay games
- - matchmaking
  - make rematch games their own thing
  - smoother layout
  - facebook connect
+ - time limit to make a move
  - challenge a friend on facebook
  - anonymous users
  - tournaments
@@ -30,6 +29,7 @@ Game of Life (gofl?)
 **TODO (Greg) :**
 
  - make rotation of pieces
+ - display templates on hover
  - keep track of which game the user is in so we can override the cached socket connection if they join with a new client
  - make the size of the pieces selector make sense?
  - scale pieces down to fit them in the menu
