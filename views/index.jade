@@ -1,5 +1,6 @@
 #app
-  #userid.hidden= user.id
+  - if (typeof user !== 'undefined')
+    #userid.hidden= user.id
   #top-status.status
   #top-error.error
   #main-panel
