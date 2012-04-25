@@ -2,8 +2,6 @@ var moore = [[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]];
 var animation_id;
 var grid;
 
-var player1 = false;
-var started = false;
 var pop;
 
 var Game = {
@@ -14,6 +12,7 @@ var Game = {
 	grid_colors: ["rgb(40,255,40)", "rgb(255,40,40)"],
 	iteration: 0,
 	current_template: {name: 'default', tiles: [[1]], type: 'default'},
+	player1: false,
 
 	join_game: function (data) {
 		Game.playing = false;
@@ -21,7 +20,7 @@ var Game = {
 		Game.id = data.id;
 		Game.init_template_pane();
 		Game.iteration = 0;
-		player1 = data.players[0] == document.getElementById('userid').innerHTML;
+		Game.player1 = data.players[0] == document.getElementById('userid').innerHTML;
 
 		document.getElementById("game_of_life").addEventListener('click', Game.clicked, false);
 		$("#play_pause").click(function() {
@@ -41,7 +40,6 @@ var Game = {
 		$('[id^="template_pick_"]').on('click', function() {
 			Game.picked_template($(this));
 		});
-		started = true;
 		grid = [];
 		for(var i = 0; i < Game.grid_size.x; i++) {
 			grid[i] = [];
@@ -68,8 +66,8 @@ var Game = {
 			var win_str;
 			switch(winner) {
 				case 0: win_str = "Tie Game!"; break;
-				case 1: win_str = player1 ? "You win!" : "You lose!"; break;
-				case 2: win_str = (!player1) ? "You win!" : "You lose!"; break;
+				case 1: win_str = Game.player1 ? "You win!" : "You lose!"; break;
+				case 2: win_str = (!Game.player1) ? "You win!" : "You lose!"; break;
 			}
 			//alert(win_str);
 			var rematch = confirm(win_str+"\nRematch?");
@@ -81,7 +79,7 @@ var Game = {
 	repaint: function(pop) {
 		var i_start, i_stop, i;
 		if(!Game.playing) {
-			if(player1) {
+			if(Game.player1) {
 				i_start = 0;
 				i_stop = Game.grid_size.x / 2;
 			} else {
@@ -142,7 +140,7 @@ var Game = {
 	},
 
 	clicked: function(e) {
-		if(!Game.playing && started) {
+		if(!Game.playing) {
 			var x, y;
 			// Get the mouse position relative to the canvas element.
 			if (e.offsetX || e.offsetX === 0) {
@@ -162,7 +160,7 @@ var Game = {
 
 			var tiles = Game.current_template.tiles;
 			var bounds;
-			if(player1) {
+			if(Game.player1) {
 				bounds = {l:0,t:0,r:Game.grid_size.x/2,b:Game.grid_size.y};
 			} else {
 				bounds = {l:Game.grid_size.x/2,t:0,r:Game.grid_size.x,b:Game.grid_size.y};
@@ -176,7 +174,7 @@ var Game = {
 						if(tiles[i][j] === 0) {
 							grid[n_x][n_y] = 0;
 						} else {
-							if(player1) {
+							if(Game.player1) {
 								grid[n_x][n_y] = 1;
 							} else {
 								grid[n_x][n_y] = 2;
@@ -243,7 +241,7 @@ var Game = {
 }
 socket.on('waiting_for_player', function() {
 	$('#header').html('Waiting for player to join...');
-	player1 = true;
+	Game.player1 = true;
 });
 socket.on('other_player_disconnected', function() {
 	$('#header').html('Other player disconnected.');

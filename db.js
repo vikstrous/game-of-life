@@ -184,7 +184,7 @@ Game.prototype = {
     var data = {
       id: this.id,
       name: this.name,
-      crid_size: this.grid_size,
+      grid_size: this.grid_size,
       creator_id: creator.id,
       creator_name: creator.name
       };

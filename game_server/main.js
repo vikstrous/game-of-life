@@ -120,8 +120,11 @@ module.exports = {
                         }
                     });
                     game.sockets[player] = socket;
-                    socket.emit('waiting_for_player');
-                    //if you are joining, join
+                    //FIXME: this is a hack to make sure the client knows if they are player 1 or 2
+                    if(player == 0){
+                        socket.emit('waiting_for_player');//this tells you that you are player 1
+                    }
+                //if you are joining, join
                 } else if (game.players[1] === undefined) { //if there isn't already a second player, join
                     game.close_ad();
                     sio.sockets.emit('remove_game', game.id);
@@ -175,10 +178,11 @@ module.exports = {
             // (let the player play before the enemy joins)
             if (game.state == 'waiting1' || game.state == 'open') {
                 game.state = 'waiting2';
-                game.save();
                 socket.emit('waiting_to_start');
             } else if (game.state == 'waiting2') {
                 game.state = 'processing';
+
+                //TODO: do this in parallel outside of node?
                 var grid = [],
                     i, point;
                 for (i = 0; i < game.grid_size.x; i++) {
@@ -212,8 +216,7 @@ module.exports = {
                     winner = game_logic.winner(iteration, game_logic.grid_pop(grid, game.grid_size));
                 }
 
-                game.del();
-                delete socket.gid;
+                game.state = 'archived';
                 game.archive(function(err) {
                     if (err) throw err;
                     db.Users.by_id(game.players[0], function(err, player1) {
@@ -238,7 +241,7 @@ module.exports = {
             }
         });
 
-        socket.on('rematch', function(record_id, cb) {
+        socket.on('rematch', function(gid, cb) {
             // we don't currently support anonymous users
             if (!socket.handshake || !socket.handshake.session.auth) {
                 return cb({
@@ -250,25 +253,25 @@ module.exports = {
             // store the rematches used by this user in the socket so that they can be removed when
             //the client disconnects
             if (typeof socket.rematches === 'array') {
-                socket.rematches.push(record_id);
+                socket.rematches.push(gid);
             } else {
-                socket.rematches = [record_id];
+                socket.rematches = [gid];
             }
 
             // if we are the first one to want a rematch store our callback
-            if (!rematches[record_id]) {
-                rematches[record_id] = {
+            if (!rematches[gid]) {
+                rematches[gid] = {
                     id: uid,
-                    cb: cb
+                    cb: cb,
+                    socket: socket
                 };
                 // if someone else already is waiting for a rematch
             } else {
-                var game = db.GameRecords.by_id(record_id, function(err, game){
-                    if(err) throw err;
-                });
+                var game = db.Games.by_id(gid);
                 //get info
-                var other_uid = rematches[record_id].id;
-                var other_cb = rematches[record_id].cb;
+                var other_uid = rematches[gid].id;
+                var other_cb = rematches[gid].cb;
+                var other_socket = rematches[gid].socket;
                 //does game still exist?
                 if (!game) {
                     cb({
@@ -301,12 +304,15 @@ module.exports = {
                     start_state: [null, null],
                     sockets: [null, null]
                 };
+                game.del();
+                delete socket.gid;
                 var new_game = new db.Game(data);
                 new_game.save();
                 cb({
                     id: new_game.id,
                     status: 'ok'
                 });
+                //TODO: try, catch?
                 other_cb({
                     id: new_game.id,
                     status: 'ok'
@@ -339,6 +345,7 @@ module.exports = {
             var userId;
             if (socket.handshake && socket.handshake.session.auth) userId = socket.handshake.session.auth.userId;
             var gid = socket.gid;
+            delete socket.gid;
 
             if (socket.rematches) {
                 for (var r in socket.rematches) {
@@ -347,21 +354,19 @@ module.exports = {
             }
 
             if (userId && gid) {
-                db.Games.by_id(gid, function(err, game) {
-                    if (err) throw err;
-                    if (game) { // fix crash when browser with socket.io is open before the server restarts
-                        var other_user;
-                        if (game.players[0] == userId) other_user = 1;
-                        else if (game.players[1] == userId) other_user = 0;
-                        if (game.sockets[other_user]) game.sockets[other_user].emit('other_player_disconnected');
-                        if (['open', 'waiting1', 'waiting2'].indexOf(game.state) != -1) {
-                            sio.sockets.emit('remove_game', game.id);
-                            game.del();
-                        }
-                    } else {
-                        console.warn("no socket handshake??");
+                var game = db.Games.by_id(gid);
+                if (game) { // fix crash when browser with socket.io is open before the server restarts
+                    var other_user;
+                    if (game.players[0] == userId) other_user = 1;
+                    else if (game.players[1] == userId) other_user = 0;
+                    if (game.sockets[other_user]) game.sockets[other_user].emit('other_player_disconnected');
+                    if (['open', 'waiting1', 'waiting2', 'archived'].indexOf(game.state) != -1) {
+                        sio.sockets.emit('remove_game', game.id);
+                        game.del();
                     }
-                });
+                } else {
+                    console.warn("no socket handshake??");
+                }
             }
         }
 

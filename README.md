@@ -15,12 +15,12 @@ Game of Life (gofl?)
  - replay games
  - make rematch games their own thing
  - smoother layout
+ - better management of rematch games
  - facebook connect
  - time limit to make a move
  - challenge a friend on facebook
  - anonymous users
  - tournaments
- - chat
  - Use Stripe for micropayments?
  - benchmark browsers -> give them the option to play bigger game
  - webgl shaders!
@@ -29,7 +29,9 @@ Game of Life (gofl?)
 **TODO (Greg) :**
 
  - make rotation of pieces
+ - chat
  - display templates on hover
+ - constant board early termination and 2 generation loop detection
  - keep track of which game the user is in so we can override the cached socket connection if they join with a new client
  - make the size of the pieces selector make sense?
  - scale pieces down to fit them in the menu
