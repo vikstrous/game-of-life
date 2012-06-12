@@ -1,6 +1,7 @@
 var moore = [[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]];
 var animation_id;
 var grid;
+var hover_grid;
 
 var pop;
 
@@ -13,6 +14,7 @@ var Game = {
 	iteration: 0,
 	current_template: {name: 'default', tiles: [[1]], type: 'default'},
 	player1: false,
+	rotation: 0,
 
 	join_game: function (data) {
 		Game.playing = false;
@@ -21,8 +23,10 @@ var Game = {
 		Game.init_template_pane();
 		Game.iteration = 0;
 		Game.player1 = data.players[0] == document.getElementById('userid').innerHTML;
+		Game.rotatedTiles = null;
 
 		document.getElementById("game_of_life").addEventListener('click', Game.clicked, false);
+		document.getElementById("game_of_life").addEventListener('mousemove', Game.moved, false);
 		$("#play_pause").click(function() {
 			var data = { points: [] };
 			for(var i = 0; i < Game.grid_size.x; i++) {
@@ -40,11 +44,18 @@ var Game = {
 		$('[id^="template_pick_"]').on('click', function() {
 			Game.picked_template($(this));
 		});
+		$('#rotate').on('click', function() {
+			Game.rotation = (Game.rotation + 1) % 4;
+			Game.createRotatedTiles();
+		});
 		grid = [];
+		hover_grid = [];
 		for(var i = 0; i < Game.grid_size.x; i++) {
 			grid[i] = [];
+			hover_grid[i] = [];
 			for(var j = 0; j < Game.grid_size.y; j++) {
 				grid[i][j] = 0;
+				hover_grid[i][j] = 0;
 			}
 		}
 		Game.repaint();
@@ -117,10 +128,14 @@ var Game = {
 
 		for(i = 0; i < Game.grid_size.x; i++) {
 			for(var j = 0; j < Game.grid_size.y; j++) {
-				if(grid[i][j] > 0) {
+				if(hover_grid[i][j] > 0 || grid[i][j] > 0) {
 					context.beginPath();
 					context.rect(i*line_separation.x + 0.5, j*line_separation.y + 0.5, line_separation.x, line_separation.y);
-					context.fillStyle = Game.grid_colors[grid[i][j] - 1];
+					if(hover_grid[i][j] > 0) {
+						context.fillStyle = Game.grid_colors[grid[i][j] - 1];
+					} else if(grid[i][j] > 0) {
+						context.fillStyle = Game.grid_colors[grid[i][j] - 1];
+					}
 					context.strokeStyle = "";
 					context.fill();
 					context.stroke();
@@ -158,7 +173,7 @@ var Game = {
 			var p_x = Math.floor(x/screen_width*Game.grid_size.x);
 			var p_y = Math.floor(y/screen_height*Game.grid_size.y);
 
-			var tiles = Game.current_template.tiles;
+			var tiles = Game.getTiles();
 			var bounds;
 			if(Game.player1) {
 				bounds = {l:0,t:0,r:Game.grid_size.x/2,b:Game.grid_size.y};
@@ -186,6 +201,56 @@ var Game = {
 			Game.repaint();
 		}
 	},
+	moved: function(e) {
+		if(!Game.playing) {
+			var obj = document.getElementById("game_of_life");
+			var t = 0;
+			var l = 0;
+			while (obj && obj.tagName != 'BODY') {
+				t += obj.offsetTop;
+				l += obj.offsetLeft;
+				obj = obj.offsetParent;
+			}
+			var x = e.clientX - l + window.pageXOffset;
+			var y = e.clientY - t + window.pageYOffset;
+			
+			var screen_width = document.getElementById("game_of_life").width;
+			var screen_height = document.getElementById("game_of_life").height;
+			var p_x = Math.floor(x/screen_width*Game.grid_size.x);
+			var p_y = Math.floor(y/screen_height*Game.grid_size.y);
+
+			var tiles = Game.getTiles();
+			var bounds;
+			if(Game.player1) {
+				bounds = {l:0,t:0,r:Game.grid_size.x/2,b:Game.grid_size.y};
+			} else {
+				bounds = {l:Game.grid_size.x/2,t:0,r:Game.grid_size.x,b:Game.grid_size.y};
+			}
+
+			for (var i = 0; i < Game.grid_size.x; i++) {
+				for(var j = 0; j < Game.grid_size.y; j++) {
+					hover_grid[i][j] = 0;
+				}
+			}
+
+			for (var i = 0; i < tiles.length; i++) {
+				for(var j = 0; j < tiles[0].length; j++) {
+					var n_x = p_x + j;
+					var n_y = p_y + i;
+					if(n_x >= bounds.l && n_x < bounds.r && n_y >= bounds.t && n_y < bounds.b) {
+						if(tiles[i][j] !== 0) {
+							if(Game.player1) {
+								hover_grid[n_x][n_y] = 1;
+							} else {
+								hover_grid[n_x][n_y] = 2;
+							}
+						}
+					}
+				}
+			}
+			Game.repaint();
+		}
+	},
 	init_template_pane: function() {
 		for(var i = 0; i < library.length; i++) {
 			var type_name = library[i].name;
@@ -203,6 +268,43 @@ var Game = {
 		$(function() {
 			$('.scroll-pane').jScrollPane();
 		});
+	},
+	getTiles: function() {
+		if(Game.rotatedTiles == null) {
+			Game.createRotatedTiles();
+		}
+		return Game.rotatedTiles;
+	},
+	createRotatedTiles: function() {
+		var tiles = Game.current_template.tiles;
+		Game.rotatedTiles = [];
+		if(Game.rotation % 2 == 0) {
+			for(var i = 0; i < tiles.length; i++) {
+				Game.rotatedTiles[i] = [];
+			}
+		} else {
+			for(var i = 0; i < tiles[0].length; i++) {
+				Game.rotatedTiles[i] = [];
+			}
+		}
+		for(var i = 0; i < tiles.length; i++) {
+			for(var j = 0; j < tiles[0].length; j++) {
+				switch(Game.rotation) {
+				case 0:
+					Game.rotatedTiles[i][j] = tiles[i][j];
+					break;
+				case 1:
+					Game.rotatedTiles[j][tiles.length - i - 1] = tiles[i][j];
+					break;
+				case 2:
+					Game.rotatedTiles[tiles.length - i - 1][tiles[0].length - j - 1] = tiles[i][j];
+					break;
+				case 3:
+					Game.rotatedTiles[tiles[0].length - j - 1][i] = tiles[i][j];
+					break;
+				}
+			}
+		}
 	},
 	getTableForTiles: function(tiles, name) {
 		var tableHTML = '<table>';
@@ -234,6 +336,7 @@ var Game = {
 				}
 			}
 		}
+		Game.createRotatedTiles();
 		$('#template_pick_' + old_template.name + '_' + old_template.type).removeClass('template_selected');
 		$('#template_pick_' + Game.current_template.name + '_' + Game.current_template.type).addClass('template_selected');
 	}
