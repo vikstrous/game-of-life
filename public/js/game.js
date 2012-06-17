@@ -158,7 +158,7 @@ var Game = {
 					context.beginPath();
 					context.rect(i * line_separation.x + 0.5, j * line_separation.y + 0.5, line_separation.x, line_separation.y);
 					if (hover_grid[i][j] > 0) {
-						context.fillStyle = Game.grid_colors[grid[i][j] - 1];
+						context.fillStyle = Game.grid_colors[hover_grid[i][j] - 1];
 					} else if (grid[i][j] > 0) {
 						context.fillStyle = Game.grid_colors[grid[i][j] - 1];
 					}

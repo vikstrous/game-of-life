@@ -35,5 +35,3 @@ Game of Life (gofl?)
  - scale pieces down to fit them in the menu
  - pregenerate .png images for the pieces (in a sprite sheet? on another server?)
 
-**TODO (Anyone) :**
- - fix the color bug with mouse over templates in the game
