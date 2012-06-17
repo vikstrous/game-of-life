@@ -1,5 +1,4 @@
-sudo apt-get install curl
-curl http://npmjs.org/install.sh | sudo sh
+sudo apt-get install redis-server
 npm install
 sudo npm install node-inspector -g
 sudo npm install nodemon -g

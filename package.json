@@ -6,7 +6,7 @@
     "stylus": "*",
     "jade": "*",
     "socket.io": "*",
-    "connect": "*",
+    "connect": "2.1.0",
     "everyauth": "*",
     "redis": "*",
     "connect-redis": "*"
@@ -19,3 +19,4 @@
     "node": "0.6.x"
   }
 }
+

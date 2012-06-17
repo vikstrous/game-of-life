@@ -11,14 +11,14 @@ Game of Life (gofl?)
 
 **TODO (Viktor) :**
 
- - socket all the other things - profiles, etc.
+ - never use alerts because they can cause the socket.io session to time out!
  - replay games
  - make rematch games their own thing
- - smoother layout
  - better management of rematch games
+ - smoother layout
  - facebook connect
- - time limit to make a move
  - challenge a friend on facebook
+ - time limit to make a move
  - anonymous users
  - tournaments
  - Use Stripe for micropayments?
@@ -28,11 +28,12 @@ Game of Life (gofl?)
 
 **TODO (Greg) :**
 
- - make rotation of pieces
  - chat
- - display templates on hover
  - constant board early termination and 2 generation loop detection
  - keep track of which game the user is in so we can override the cached socket connection if they join with a new client
  - make the size of the pieces selector make sense?
  - scale pieces down to fit them in the menu
  - pregenerate .png images for the pieces (in a sprite sheet? on another server?)
+
+**TODO (Anyone) :**
+ - fix the color bug with mouse over templates in the game
