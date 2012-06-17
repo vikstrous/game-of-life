@@ -1,4 +1,13 @@
-var moore = [[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1],[1,0]];
+var moore = [
+	[1, 1],
+	[0, 1],
+	[-1, 1],
+	[-1, 0],
+	[-1, -1],
+	[0, -1],
+	[1, -1],
+	[1, 0]
+];
 var animation_id;
 var grid;
 var hover_grid;
@@ -12,11 +21,17 @@ var Game = {
 	playing: false,
 	grid_colors: ["rgb(40,255,40)", "rgb(255,40,40)"],
 	iteration: 0,
-	current_template: {name: 'default', tiles: [[1]], type: 'default'},
+	current_template: {
+		name: 'default',
+		tiles: [
+			[1]
+		],
+		type: 'default'
+	},
 	player1: false,
 	rotation: 0,
 
-	join_game: function (data) {
+	join_game: function(data) {
 		Game.playing = false;
 		Game.grid_size = data.grid_size;
 		Game.id = data.id;
@@ -28,11 +43,16 @@ var Game = {
 		document.getElementById("game_of_life").addEventListener('click', Game.clicked, false);
 		document.getElementById("game_of_life").addEventListener('mousemove', Game.moved, false);
 		$("#play_pause").click(function() {
-			var data = { points: [] };
-			for(var i = 0; i < Game.grid_size.x; i++) {
-				for(var j = 0; j < Game.grid_size.y; j++) {
-					if(grid[i][j] > 0) {
-						data.points.push({x:i,y:j});
+			var data = {
+				points: []
+			};
+			for (var i = 0; i < Game.grid_size.x; i++) {
+				for (var j = 0; j < Game.grid_size.y; j++) {
+					if (grid[i][j] > 0) {
+						data.points.push({
+							x: i,
+							y: j
+						});
 					}
 				}
 			}
@@ -50,10 +70,10 @@ var Game = {
 		});
 		grid = [];
 		hover_grid = [];
-		for(var i = 0; i < Game.grid_size.x; i++) {
+		for (var i = 0; i < Game.grid_size.x; i++) {
 			grid[i] = [];
 			hover_grid[i] = [];
-			for(var j = 0; j < Game.grid_size.y; j++) {
+			for (var j = 0; j < Game.grid_size.y; j++) {
 				grid[i][j] = 0;
 				hover_grid[i][j] = 0;
 			}
@@ -62,35 +82,41 @@ var Game = {
 	},
 
 	update: function() {
-			grid = game_logic.update(grid, Game.grid_size);
-			pop = game_logic.grid_pop(grid, Game.grid_size);
-			Game.iteration++;
-			Game.repaint(pop);
-			var winner = game_logic.winner(Game.iteration, pop);
-			if(winner >= 0) {
-				clearInterval(animation_id);
-				Game.display_winner(winner);
-			}
+		grid = game_logic.update(grid, Game.grid_size);
+		pop = game_logic.grid_pop(grid, Game.grid_size);
+		Game.iteration++;
+		Game.repaint(pop);
+		var winner = game_logic.winner(Game.iteration, pop);
+		if (winner >= 0) {
+			clearInterval(animation_id);
+			Game.display_winner(winner);
+		}
 	},
 
 	display_winner: function(winner) {
-			var win_str;
-			switch(winner) {
-				case 0: win_str = "Tie Game!"; break;
-				case 1: win_str = Game.player1 ? "You win!" : "You lose!"; break;
-				case 2: win_str = (!Game.player1) ? "You win!" : "You lose!"; break;
-			}
-			//alert(win_str);
-			var rematch = confirm(win_str+"\nRematch?");
-			if (rematch) {
-				App.rematch(Game);
-			}
+		var win_str;
+		switch (winner) {
+		case 0:
+			win_str = "Tie Game!";
+			break;
+		case 1:
+			win_str = Game.player1 ? "You win!" : "You lose!";
+			break;
+		case 2:
+			win_str = (!Game.player1) ? "You win!" : "You lose!";
+			break;
+		}
+		//alert(win_str);
+		var rematch = confirm(win_str + "\nRematch?");
+		if (rematch) {
+			App.rematch(Game);
+		}
 	},
 
 	repaint: function(pop) {
 		var i_start, i_stop, i;
-		if(!Game.playing) {
-			if(Game.player1) {
+		if (!Game.playing) {
+			if (Game.player1) {
 				i_start = 0;
 				i_stop = Game.grid_size.x / 2;
 			} else {
@@ -109,16 +135,16 @@ var Game = {
 		var screen_width = document.getElementById("game_of_life").width - 1;
 		var screen_height = document.getElementById("game_of_life").height - 1;
 		var line_separation = {
-			x : screen_width / Game.grid_size.x,
-			y : screen_height / Game.grid_size.y
+			x: screen_width / Game.grid_size.x,
+			y: screen_height / Game.grid_size.y
 		};
-		for(i = i_start; i <= i_stop; i++) {
-			context.moveTo(i*line_separation.x + 0.5, 0.5);
-			context.lineTo(i*line_separation.x + 0.5, screen_height + 0.5);
+		for (i = i_start; i <= i_stop; i++) {
+			context.moveTo(i * line_separation.x + 0.5, 0.5);
+			context.lineTo(i * line_separation.x + 0.5, screen_height + 0.5);
 		}
-		for(i = 0; i <= Game.grid_size.y; i++) {
-			context.moveTo(i_start*line_separation.x + 0.5, i*line_separation.y + 0.5);
-			context.lineTo(i_stop*line_separation.x + 0.5, i*line_separation.y + 0.5);
+		for (i = 0; i <= Game.grid_size.y; i++) {
+			context.moveTo(i_start * line_separation.x + 0.5, i * line_separation.y + 0.5);
+			context.lineTo(i_stop * line_separation.x + 0.5, i * line_separation.y + 0.5);
 		}
 
 		context.fillStyle = "";
@@ -126,14 +152,14 @@ var Game = {
 		context.lineWidth = 1;
 		context.stroke();
 
-		for(i = 0; i < Game.grid_size.x; i++) {
-			for(var j = 0; j < Game.grid_size.y; j++) {
-				if(hover_grid[i][j] > 0 || grid[i][j] > 0) {
+		for (i = 0; i < Game.grid_size.x; i++) {
+			for (var j = 0; j < Game.grid_size.y; j++) {
+				if (hover_grid[i][j] > 0 || grid[i][j] > 0) {
 					context.beginPath();
-					context.rect(i*line_separation.x + 0.5, j*line_separation.y + 0.5, line_separation.x, line_separation.y);
-					if(hover_grid[i][j] > 0) {
+					context.rect(i * line_separation.x + 0.5, j * line_separation.y + 0.5, line_separation.x, line_separation.y);
+					if (hover_grid[i][j] > 0) {
 						context.fillStyle = Game.grid_colors[grid[i][j] - 1];
-					} else if(grid[i][j] > 0) {
+					} else if (grid[i][j] > 0) {
 						context.fillStyle = Game.grid_colors[grid[i][j] - 1];
 					}
 					context.strokeStyle = "";
@@ -143,8 +169,8 @@ var Game = {
 			}
 		}
 
-		if(Game.playing) {
-			if(typeof pop == 'object'){
+		if (Game.playing) {
+			if (typeof pop == 'object') {
 				$("#pop1").html(pop.pop1);
 				$("#pop2").html(pop.pop2);
 				$("#gen").html(Game.iteration);
@@ -155,7 +181,7 @@ var Game = {
 	},
 
 	clicked: function(e) {
-		if(!Game.playing) {
+		if (!Game.playing) {
 			var x, y;
 			// Get the mouse position relative to the canvas element.
 			if (e.offsetX || e.offsetX === 0) {
@@ -170,26 +196,36 @@ var Game = {
 			}
 			var screen_width = document.getElementById("game_of_life").width;
 			var screen_height = document.getElementById("game_of_life").height;
-			var p_x = Math.floor(x/screen_width*Game.grid_size.x);
-			var p_y = Math.floor(y/screen_height*Game.grid_size.y);
+			var p_x = Math.floor(x / screen_width * Game.grid_size.x);
+			var p_y = Math.floor(y / screen_height * Game.grid_size.y);
 
 			var tiles = Game.getTiles();
 			var bounds;
-			if(Game.player1) {
-				bounds = {l:0,t:0,r:Game.grid_size.x/2,b:Game.grid_size.y};
+			if (Game.player1) {
+				bounds = {
+					l: 0,
+					t: 0,
+					r: Game.grid_size.x / 2,
+					b: Game.grid_size.y
+				};
 			} else {
-				bounds = {l:Game.grid_size.x/2,t:0,r:Game.grid_size.x,b:Game.grid_size.y};
+				bounds = {
+					l: Game.grid_size.x / 2,
+					t: 0,
+					r: Game.grid_size.x,
+					b: Game.grid_size.y
+				};
 			}
 
 			for (var i = 0; i < tiles.length; i++) {
-				for(var j = 0; j < tiles[0].length; j++) {
+				for (var j = 0; j < tiles[0].length; j++) {
 					var n_x = p_x + j;
 					var n_y = p_y + i;
-					if(n_x >= bounds.l && n_x < bounds.r && n_y >= bounds.t && n_y < bounds.b) {
-						if(tiles[i][j] === 0) {
+					if (n_x >= bounds.l && n_x < bounds.r && n_y >= bounds.t && n_y < bounds.b) {
+						if (tiles[i][j] === 0) {
 							grid[n_x][n_y] = 0;
 						} else {
-							if(Game.player1) {
+							if (Game.player1) {
 								grid[n_x][n_y] = 1;
 							} else {
 								grid[n_x][n_y] = 2;
@@ -202,7 +238,7 @@ var Game = {
 		}
 	},
 	moved: function(e) {
-		if(!Game.playing) {
+		if (!Game.playing) {
 			var obj = document.getElementById("game_of_life");
 			var t = 0;
 			var l = 0;
@@ -213,33 +249,44 @@ var Game = {
 			}
 			var x = e.clientX - l + window.pageXOffset;
 			var y = e.clientY - t + window.pageYOffset;
-			
+
 			var screen_width = document.getElementById("game_of_life").width;
 			var screen_height = document.getElementById("game_of_life").height;
-			var p_x = Math.floor(x/screen_width*Game.grid_size.x);
-			var p_y = Math.floor(y/screen_height*Game.grid_size.y);
+			var p_x = Math.floor(x / screen_width * Game.grid_size.x);
+			var p_y = Math.floor(y / screen_height * Game.grid_size.y);
 
 			var tiles = Game.getTiles();
 			var bounds;
-			if(Game.player1) {
-				bounds = {l:0,t:0,r:Game.grid_size.x/2,b:Game.grid_size.y};
+			if (Game.player1) {
+				bounds = {
+					l: 0,
+					t: 0,
+					r: Game.grid_size.x / 2,
+					b: Game.grid_size.y
+				};
 			} else {
-				bounds = {l:Game.grid_size.x/2,t:0,r:Game.grid_size.x,b:Game.grid_size.y};
+				bounds = {
+					l: Game.grid_size.x / 2,
+					t: 0,
+					r: Game.grid_size.x,
+					b: Game.grid_size.y
+				};
 			}
 
-			for (var i = 0; i < Game.grid_size.x; i++) {
-				for(var j = 0; j < Game.grid_size.y; j++) {
+			var i, j;
+			for (i = 0; i < Game.grid_size.x; i++) {
+				for (j = 0; j < Game.grid_size.y; j++) {
 					hover_grid[i][j] = 0;
 				}
 			}
 
-			for (var i = 0; i < tiles.length; i++) {
-				for(var j = 0; j < tiles[0].length; j++) {
+			for (i = 0; i < tiles.length; i++) {
+				for (j = 0; j < tiles[0].length; j++) {
 					var n_x = p_x + j;
 					var n_y = p_y + i;
-					if(n_x >= bounds.l && n_x < bounds.r && n_y >= bounds.t && n_y < bounds.b) {
-						if(tiles[i][j] !== 0) {
-							if(Game.player1) {
+					if (n_x >= bounds.l && n_x < bounds.r && n_y >= bounds.t && n_y < bounds.b) {
+						if (tiles[i][j] !== 0) {
+							if (Game.player1) {
 								hover_grid[n_x][n_y] = 1;
 							} else {
 								hover_grid[n_x][n_y] = 2;
@@ -252,12 +299,12 @@ var Game = {
 		}
 	},
 	init_template_pane: function() {
-		for(var i = 0; i < library.length; i++) {
+		for (var i = 0; i < library.length; i++) {
 			var type_name = library[i].name;
 			$('#template_content').append($('<h1>').text(library[i].hrname));
-	        for(var j = 0; j < library[i].list.length; j++) {
+			for (var j = 0; j < library[i].list.length; j++) {
 				var $div = $('<div>');
-				$div.attr('id', 'template_pick_' +  library[i].list[j].name + '_' + type_name);
+				$div.attr('id', 'template_pick_' + library[i].list[j].name + '_' + type_name);
 				$div.addClass('template_pick');
 				$div.append($('<h2>').text(library[i].list[j].hrname));
 				$div.append(Game.getTableForTiles(library[i].list[j].tiles, library[i].list[j].name));
@@ -270,26 +317,27 @@ var Game = {
 		});
 	},
 	getTiles: function() {
-		if(Game.rotatedTiles == null) {
+		if (Game.rotatedTiles === null) {
 			Game.createRotatedTiles();
 		}
 		return Game.rotatedTiles;
 	},
 	createRotatedTiles: function() {
 		var tiles = Game.current_template.tiles;
+		var i;
 		Game.rotatedTiles = [];
-		if(Game.rotation % 2 == 0) {
-			for(var i = 0; i < tiles.length; i++) {
+		if (Game.rotation % 2 === 0) {
+			for (i = 0; i < tiles.length; i++) {
 				Game.rotatedTiles[i] = [];
 			}
 		} else {
-			for(var i = 0; i < tiles[0].length; i++) {
+			for (i = 0; i < tiles[0].length; i++) {
 				Game.rotatedTiles[i] = [];
 			}
 		}
-		for(var i = 0; i < tiles.length; i++) {
-			for(var j = 0; j < tiles[0].length; j++) {
-				switch(Game.rotation) {
+		for (i = 0; i < tiles.length; i++) {
+			for (var j = 0; j < tiles[0].length; j++) {
+				switch (Game.rotation) {
 				case 0:
 					Game.rotatedTiles[i][j] = tiles[i][j];
 					break;
@@ -310,9 +358,9 @@ var Game = {
 		var tableHTML = '<table>';
 		var width = tiles[0].length;
 		var height = tiles.length;
-		for(var i = 0; i < height; i++) {
+		for (var i = 0; i < height; i++) {
 			tableHTML += '<tr>';
-			for(var j = 0; j < width; j++) {
+			for (var j = 0; j < width; j++) {
 				tableHTML += '<td class="select_' + ((tiles[i][j] == 1) ? 'on' : 'off') + '"></td>';
 			}
 			tableHTML += '</tr>';
@@ -325,10 +373,10 @@ var Game = {
 		var template_name = split[2];
 		var template_type = split[3];
 		var old_template = Game.current_template;
-		for(var i = 0; i < library.length; i++) {
-			if(library[i].name == template_type) {
-				for(var j = 0; j < library[i].list.length; j++) {
-					if(library[i].list[j].name == template_name) {
+		for (var i = 0; i < library.length; i++) {
+			if (library[i].name == template_type) {
+				for (var j = 0; j < library[i].list.length; j++) {
+					if (library[i].list[j].name == template_name) {
 						Game.current_template = library[i].list[j];
 						Game.current_template.type = library[i].name;
 						break;
@@ -341,7 +389,7 @@ var Game = {
 		$('#template_pick_' + Game.current_template.name + '_' + Game.current_template.type).addClass('template_selected');
 	}
 
-}
+};
 socket.on('waiting_for_player', function() {
 	$('#header').html('Waiting for player to join...');
 	Game.player1 = true;
@@ -354,5 +402,5 @@ socket.on('grid_played', function(data) {
 	grid = data;
 	Game.playing = true;
 	$("#info_display").show();
-	animation_id = setInterval(Game.update, 1000/20);
+	animation_id = setInterval(Game.update, 1000 / 20);
 });
