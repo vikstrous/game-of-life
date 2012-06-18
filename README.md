@@ -1,6 +1,9 @@
 Game of Life (gofl?)
 =====
 
+**Gameplay tips :**
+ - Hit R to rotate.
+
 **Development tips :**
 
  - Check out how to use node-inspector for debugging
