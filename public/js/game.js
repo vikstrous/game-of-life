@@ -35,7 +35,7 @@ var Game = {
 		if (e.which == 82 && e.ctrlKey === false && e.altKey === false && e.shiftKey === false) {
 			Game.rotation = (Game.rotation + 1) % 4;
 			Game.createRotatedTiles();
-			Game.update_hover_grid(game.last_p_x, game.last_p_y);
+			Game.update_hover_grid(Game.last_p_x, Game.last_p_y);
 			Game.repaint();
 		}
 	},
@@ -306,8 +306,8 @@ var Game = {
 			var screen_height = document.getElementById("game_of_life").height;
 			var p_x = Math.floor(x / screen_width * Game.grid_size.x);
 			var p_y = Math.floor(y / screen_height * Game.grid_size.y);
-			game.last_p_x = p_x;
-			game.last_p_y = p_y;
+			Game.last_p_x = p_x;
+			Game.last_p_y = p_y;
 
 			Game.update_hover_grid(p_x, p_y);
 			Game.repaint();
