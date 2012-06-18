@@ -11,6 +11,8 @@ Game of Life (gofl?)
 
 **TODO (Viktor) :**
 
+ - handle game status better
+ - make anonymous players work
  - never use alerts because they can cause the socket.io session to time out!
  - replay games
  - make rematch games their own thing
@@ -28,6 +30,10 @@ Game of Life (gofl?)
 
 **TODO (Greg) :**
 
+ - Change the color of hover tiles
+ - Stop the player from editing the grid after hitting play
+ - 1 and 2 frame loop detection? How about we do a hack where we check if the pop hasn't changed in 10 generations? Or has a 2 frame loop for 20 generations?
+ - make the enemy half of the grid be gray instead of cell-less during the placement phase of the game
  - chat
  - constant board early termination and 2 generation loop detection
  - keep track of which game the user is in so we can override the cached socket connection if they join with a new client

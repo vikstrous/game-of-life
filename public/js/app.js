@@ -138,14 +138,13 @@ var App = {
 
   load_play_game: function(id){
     page_is_loading(true);
-    socket.emit('join', id, function(data){
+    socket.emit('play', id, function(data){
       if(data.game){
         App.render_play_game(data.game);
-        page_is_loading(false);
       } else if (data.errors){
         App.top_error(data.errors[0]);
-        page_is_loading(false);
       }
+      page_is_loading(false);
     });
   }
 };

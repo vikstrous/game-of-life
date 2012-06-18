@@ -88,7 +88,7 @@ module.exports = {
         });
 
 
-        socket.on('join', function(id, cb) {
+        socket.on('play', function(id, cb) {
             //example code:
             /*db.Users.by_id(uid, function(err, user){
                 //TODO: verify that this user is allowed to join this game
@@ -109,6 +109,7 @@ module.exports = {
                 //if you are player 1 or player 2, do nothing
                 var player = game.players.indexOf(uid);
                 if (player !== -1) {
+                    game.sockets[player] = socket;
                     cb({
                         game: {
                             id: game.id,
@@ -116,16 +117,12 @@ module.exports = {
                             width: Number(game.grid_size.x) * 8 + 1,
                             height: Number(game.grid_size.y) * 8 + 1,
                             grid_size: game.grid_size,
-                            players: game.players
+                            players: game.players,
+                            player: player
                         }
                     });
-                    game.sockets[player] = socket;
-                    //FIXME: this is a hack to make sure the client knows if they are player 1 or 2
-                    if(player == 0){
-                        socket.emit('waiting_for_player');//this tells you that you are player 1
-                    }
-                //if you are joining, join
-                } else if (game.players[1] === undefined) { //if there isn't already a second player, join
+                //if you are not in the game yet but there's room to join
+                } else if (game.players[1] === undefined) {
                     game.close_ad();
                     sio.sockets.emit('remove_game', game.id);
                     game.players[1] = uid;
@@ -140,7 +137,8 @@ module.exports = {
                             width: Number(game.grid_size.x) * 8 + 1,
                             height: Number(game.grid_size.y) * 8 + 1,
                             grid_size: game.grid_size,
-                            players: game.players
+                            players: game.players,
+                            player: player
                         }
                     });
                 } else {
