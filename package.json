@@ -2,11 +2,12 @@
   "name": "gofl",
   "version": "0.0.4-3",
   "dependencies": {
-    "express": "<3.0",
+    "express": "3",
     "stylus": "*",
     "jade": "*",
     "socket.io": "*",
-    "connect": "2.1.0",
+    "connect": "*",
+    "cookie": "*",
     "everyauth": "*",
     "redis": "*",
     "connect-redis": "*"
