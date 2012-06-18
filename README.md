@@ -30,6 +30,7 @@ Game of Life (gofl?)
  - benchmark browsers -> give them the option to play bigger game
  - webgl shaders!
  - preloading system fun stuff?
+ - pack the javascript
 
 **TODO (Greg) :**
 

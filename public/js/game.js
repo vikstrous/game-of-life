@@ -35,6 +35,8 @@ var Game = {
 		if (e.which == 82 && e.ctrlKey === false && e.altKey === false && e.shiftKey === false) {
 			Game.rotation = (Game.rotation + 1) % 4;
 			Game.createRotatedTiles();
+			Game.update_hover_grid(game.last_p_x, game.last_p_y);
+			Game.repaint();
 		}
 	},
 
@@ -65,6 +67,7 @@ var Game = {
 			$('#play_pause').prop('disabled', true);
 			$('#play_pause').html('Waiting...');
 			socket.emit('grid_play', data);
+			Game.playing = true;
 		});
 		//TODO: make sure these actions are attached only once
 		document.getElementById("game_of_life").addEventListener('click', Game.clicked, false);
@@ -157,7 +160,6 @@ var Game = {
 		context.strokeStyle = "#333333";
 		context.lineWidth = 1;
 		context.stroke();
-
 		for (i = 0; i < Game.grid_size.x; i++) {
 			for (var j = 0; j < Game.grid_size.y; j++) {
 				if (Game.hover_grid[i][j] > 0 || Game.grid[i][j] > 0) {
@@ -243,24 +245,15 @@ var Game = {
 			Game.repaint();
 		}
 	},
-	moved: function(e) {
-		if (!Game.playing) {
-			var obj = document.getElementById("game_of_life");
-			var t = 0;
-			var l = 0;
-			while (obj && obj.tagName != 'BODY') {
-				t += obj.offsetTop;
-				l += obj.offsetLeft;
-				obj = obj.offsetParent;
+	update_hover_grid: function(p_x, p_y){
+		var i, j;
+		for (i = 0; i < Game.grid_size.x; i++) {
+			for (j = 0; j < Game.grid_size.y; j++) {
+				Game.hover_grid[i][j] = 0;
 			}
-			var x = e.clientX - l + window.pageXOffset;
-			var y = e.clientY - t + window.pageYOffset;
+		}
 
-			var screen_width = document.getElementById("game_of_life").width;
-			var screen_height = document.getElementById("game_of_life").height;
-			var p_x = Math.floor(x / screen_width * Game.grid_size.x);
-			var p_y = Math.floor(y / screen_height * Game.grid_size.y);
-
+		if(p_x !== undefined && p_y !== undefined){
 			var tiles = Game.getTiles();
 			var bounds;
 			if (Game.player1) {
@@ -279,13 +272,6 @@ var Game = {
 				};
 			}
 
-			var i, j;
-			for (i = 0; i < Game.grid_size.x; i++) {
-				for (j = 0; j < Game.grid_size.y; j++) {
-					Game.hover_grid[i][j] = 0;
-				}
-			}
-
 			for (i = 0; i < tiles.length; i++) {
 				for (j = 0; j < tiles[0].length; j++) {
 					var n_x = p_x + j;
@@ -301,6 +287,29 @@ var Game = {
 					}
 				}
 			}
+		}
+	},
+	moved: function(e) {
+		if (!Game.playing) {
+			var obj = document.getElementById("game_of_life");
+			var t = 0;
+			var l = 0;
+			while (obj && obj.tagName != 'BODY') {
+				t += obj.offsetTop;
+				l += obj.offsetLeft;
+				obj = obj.offsetParent;
+			}
+			var x = e.clientX - l + window.pageXOffset;
+			var y = e.clientY - t + window.pageYOffset;
+
+			var screen_width = document.getElementById("game_of_life").width;
+			var screen_height = document.getElementById("game_of_life").height;
+			var p_x = Math.floor(x / screen_width * Game.grid_size.x);
+			var p_y = Math.floor(y / screen_height * Game.grid_size.y);
+			game.last_p_x = p_x;
+			game.last_p_y = p_y;
+
+			Game.update_hover_grid(p_x, p_y);
 			Game.repaint();
 		}
 	},
@@ -394,7 +403,6 @@ var Game = {
 		$('#template_pick_' + old_template.name + '_' + old_template.type).removeClass('template_selected');
 		$('#template_pick_' + Game.current_template.name + '_' + Game.current_template.type).addClass('template_selected');
 	}
-
 };
 socket.on('other_player_disconnected', function() {
 	$('#header').html('Other player disconnected.');
