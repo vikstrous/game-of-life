@@ -16,17 +16,21 @@ html
         .banner
           a(href='/') The Game Of Life
         ul.nav
-          - if ('undefined' !== typeof user)
-            li #{user.email}
-              //a(href="/profile/"+user.id) #{user.email}
-          - else
-            li User: Anonymous
-          - if(everyauth.loggedIn)
-            li
-              a(href="/logout") Logout
-          - else
-            li
-              a(href="/login") Log in
-            li
-              a(href="/register") Register
+          p
+            - if ('undefined' !== typeof user)
+              li #{user.email}
+                //a(href="/profile/"+user.id) #{user.email}
+            - else
+              li User: Anonymous
+            - if(everyauth.loggedIn)
+              li
+                a(href="/logout") Logout
+            - else
+              li
+                a(href="/login") Log in
+              li
+                a(href="/register") Register
+          p
+            - if ('undefined' !== typeof user)
+              img(src="http://avatars.io/email/"+user.email)
         != body
