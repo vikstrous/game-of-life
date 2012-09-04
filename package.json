@@ -7,7 +7,7 @@
     "jade": "*",
     "socket.io": "*",
     "connect": "2.1.0",
-    "everyauth": "*",
+    "everyauth": "0.2.32",
     "redis": "*",
     "connect-redis": "*"
   },
