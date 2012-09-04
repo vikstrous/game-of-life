@@ -25,11 +25,6 @@ html
             - if(everyauth.loggedIn)
               li
                 a(href="/logout") Logout
-            - else
-              li
-                a(href="/login") Log in
-              li
-                a(href="/register") Register
           p
             - if ('undefined' !== typeof user)
               img(src="http://avatars.io/email/"+user.email)

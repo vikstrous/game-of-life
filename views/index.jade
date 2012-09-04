@@ -1,6 +1,12 @@
 #app
   - if (typeof user !== 'undefined')
     #userid.hidden= user.id
+  - else
+    div.left
+      != partial('login')
+    div.right
+      != partial('register')
+    div.clear
   #top-status.status
   #top-error.error
   #main-panel

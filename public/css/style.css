@@ -83,6 +83,9 @@ label {
 .hidden {
   display: none;
 }
+.clear {
+  clear: both;
+}
 .main {
   background-color: #fff;
   color: #000;
