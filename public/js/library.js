@@ -11,6 +11,16 @@ var library = [
        hrname:"Erase",
        name:"erase",
        tiles:[[0]]
+     },
+     {
+       hrname:"Erase Big",
+       name:"erase2",
+       tiles:[[0,0],[0,0]]
+     },
+     {
+       hrname:"Erase Bigger",
+       name:"erase3",
+       tiles:[[0,0,0],[0,0,0],[0,0,0]]
      }
   ]
   },

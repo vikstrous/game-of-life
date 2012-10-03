@@ -30,6 +30,7 @@ var Game = {
 	},
 	player1: false,
 	rotation: 0,
+	key_down_attached: false,
 
 	key_down: function(e){
 		if (e.which == 82 && e.ctrlKey === false && e.altKey === false && e.shiftKey === false) {
@@ -75,7 +76,10 @@ var Game = {
 		$('[id^="template_pick_"]').on('click', function() {
 			Game.picked_template($(this));
 		});
-		$(document).keydown(Game.key_down);
+		if(!Game.key_down_attached){
+			$(document).keydown(Game.key_down);
+			Game.key_down_attached = true;
+		}
 		Game.picked_template($('#template_pick_default_default'));
 		Game.grid = [];
 		Game.hover_grid = [];

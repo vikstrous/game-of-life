@@ -31,6 +31,11 @@ Game of Life (gofl?)
  - webgl shaders!
  - preloading system fun stuff?
  - pack the javascript
+ - erase all feature
+ - preview of eraser
+ - clear "other player disconnected"
+ - clear current block when press play
+ - descriptions of shapes
 
 **TODO (Greg) :**
 
