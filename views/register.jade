@@ -3,7 +3,7 @@ h1 Come one, come all! Register here!
   ul#errors
     - each error in errors
       li.error= error
-form#register(action="/register", method="POST")
+form#register_form(action="/register", method="POST")
   label email:
     br
     input(name="email")

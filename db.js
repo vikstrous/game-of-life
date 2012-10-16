@@ -56,7 +56,9 @@ var User = function(data) {
   };
 
 User.prototype = {
-  properties: ['id', 'email', 'password', 'wins', 'losses', 'ties', 'isAdmin'],
+  properties: ['id', 'email', 'password', 'browser_id_audience', 
+    'browser_id_session_expire', 'browser_id_issuer', 'account_type', 
+    'wins', 'losses', 'ties', 'isAdmin'],
   save: function(cb) {
     //new
     var self = this;

@@ -36,6 +36,8 @@ Game of Life (gofl?)
  - clear "other player disconnected"
  - clear current block when press play
  - descriptions of shapes
+ - careate a generic way to send json to the front end with the initial page load and fire events with the data delivered
+ - log in without refreshing the page
 
 **TODO (Greg) :**
 

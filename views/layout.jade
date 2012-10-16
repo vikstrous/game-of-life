@@ -5,8 +5,14 @@ html
     link(rel="stylesheet", type="text/css", href="/css/reset.css")
     link(rel="stylesheet", type="text/css", href="/css/style.css")
     link(type="text/css", href="/css/jquery.jscrollpane.css", rel="stylesheet", media="all")
+    script(src="https://login.persona.org/include.js")
     script(src="/js/lib/jquery.min.js")
     script(src="/js/lib/mustache.js")
+    script(src="/js/auth.js")
+    - if ('undefined' !== typeof user)
+      - user_clean = user
+      - delete user_clean.password
+      meta(name="user", content=JSON.stringify(user))
   body
     #overlay
       img(src="/images/load48.gif")
@@ -22,9 +28,14 @@ html
                 //a(href="/profile/"+user.id) #{user.email}
             - else
               li User: Anonymous
-            - if(everyauth.loggedIn)
+            li
+              a(id="persona_login") Login / Register
+            - if ('undefined' !== typeof user)
               li
-                a(href="/logout") Logout
+                - if (user.account_type == 'browser_id')
+                  a(id="persona_logout") Logout
+                - else
+                  a(href="/logout") Logout
           p
             - if ('undefined' !== typeof user)
               img(src="http://avatars.io/email/"+user.email)

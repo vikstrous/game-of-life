@@ -1,7 +1,7 @@
 var everyauth = require('everyauth'),
     db = require(__dirname + '/db.js'),
     crypto = require('crypto');
-
+everyauth.debug = true;
 function hash(email, pass) {
   return crypto.createHmac('sha512', email).update(pass).digest('hex');
 }
@@ -48,24 +48,26 @@ module.exports = {
         return promise;
       })
       .respondToLoginSucceed(function(res, user, data){
+        //careful! this function is called in both cases
         if(user) {
-          var r = data.session.redirectTo;
-          delete data.session.redirectTo;
-          res.redirect(r || '/');
+          res.json({'status':'ok', 'user':user});
         }
       })
-      // .respondToLoginFail(function(req, res, error, username, login){
-      //   console.log("LOGIN FAIL");
-      //   if(user) {
-      //     var r = login.session.redirectTo;
-      //     delete login.session.redirectTo;
-      //     res.redirect(r || '/');
-      //   }
-      // })
+      .respondToLoginFail(function(req, res, errors, username){
+        //careful! this function is called in both cases
+        if (!errors || !errors.length) return;
+        res.json({'status':'error', 'error':errors});
+      })
       .respondToRegistrationSucceed(function(res, user, data){
-        var r = data.session.redirectTo;
-        delete data.session.redirectTo;
-        res.redirect(r || '/');
+        //careful! this function is called in both cases
+        if(user) {
+          res.json({'status':'ok', 'user':user});
+        }
+      })
+      .respondToRegistrationFail(function(req, res, error, username){
+        //careful! this function is called in both cases
+        if (!errors || !errors.length) return;
+        res.json({'status':'error', 'error':errors});
       })
       .getRegisterPath('/register') // Uri path to the registration page
       .postRegisterPath('/register') // The Uri path that your registration form POSTs to
@@ -129,16 +131,44 @@ module.exports = {
         // here; all other validations occur in the `validateRegistration` step documented above.
         var promise = this.Promise();
         newUserAttributes.password = hash(newUserAttributes.email, newUserAttributes.password);
+        newUserAttributes.account_type = 'password';
         var user = new db.User(newUserAttributes);
         user.save(function(err){
           if(err) return promise.fulfill([err]);
           promise.fulfill(user);
         });
         return promise;
+      })
+      .everyauth
+      .browser_id
+      .authenticate(function(user, req, res){
+        if(!user) return ['Login Failed'];
+        var promise = this.Promise();
+        db.Users.by_email(user.email, function(err, dbuser){
+          if (err) return promise.fulfill([err]);
+          if(!dbuser) {
+            //create the user
+            attributes = {
+              email: user.email,
+              browser_id_audience: user.audience,
+              browser_id_session_expire: user.audience,
+              browser_id_issuer: user.issuer,
+              account_type: 'browser_id'
+            }
+            dbuser = new db.User(attributes);
+            dbuser.save(function(err){
+              if(err) return promise.fulfill([err]);
+              promise.fulfill(dbuser);
+            });
+          }
+          promise.fulfill(dbuser);
+        });
+        return promise;
       });
 
       everyauth.helpExpress(app, {userAlias:'user'});
       everyauth.everymodule.findUserById(function (userId, callback) {
+        // todo: don't look up the user in the database for every single request (including static requests)
         db.Users.by_id(userId, callback);
       });
   },
@@ -146,7 +176,7 @@ module.exports = {
     if(req.loggedIn){
       next();
     } else {
-      req.session.redirectTo = req.url;
+      // req.session.redirectTo = req.url;
       res.redirect('/login');
     }
   },
@@ -158,7 +188,7 @@ module.exports = {
         res.render('error', { status: 401 });
       }
     } else {
-      req.session.redirectTo = req.url;
+      // req.session.redirectTo = req.url;
       res.redirect('/login');
     }
   },

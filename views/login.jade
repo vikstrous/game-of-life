@@ -3,7 +3,7 @@ h1 Login, good sir or madame.
   ul#errors
     - each error in errors
       li.error= error
-form(action="/login", method="POST")
+form#login_form(action="/login", method="POST")
   label email:
     br
     input(type="email", name="email")
