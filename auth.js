@@ -48,10 +48,20 @@ module.exports = {
         return promise;
       })
       .respondToLoginSucceed(function(res, user, data){
-        var r = data.session.redirectTo;
-        delete data.session.redirectTo;
-        res.redirect(r || '/');
+        if(user) {
+          var r = data.session.redirectTo;
+          delete data.session.redirectTo;
+          res.redirect(r || '/');
+        }
       })
+      // .respondToLoginFail(function(req, res, error, username, login){
+      //   console.log("LOGIN FAIL");
+      //   if(user) {
+      //     var r = login.session.redirectTo;
+      //     delete login.session.redirectTo;
+      //     res.redirect(r || '/');
+      //   }
+      // })
       .respondToRegistrationSucceed(function(res, user, data){
         var r = data.session.redirectTo;
         delete data.session.redirectTo;
